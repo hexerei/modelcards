@@ -16,7 +16,7 @@
       },
       "licenses": [
         {
-          "MIT": "The MIT License (MIT)"
+          "identifier": "Apache-2.0"
         }
       ],
       "references": [
