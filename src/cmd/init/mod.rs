@@ -6,6 +6,9 @@ use std::{
 
 use anyhow::{bail, Context, Result};
 
+mod schema;
+mod templates;
+
 // canonicalize(path) function on windows system returns a path with UNC.
 // Example: \\?\C:\Users\VssAdministrator\AppData\Local\Temp\new_project
 // More details on Universal Naming Convention (UNC):
@@ -71,8 +74,11 @@ fn populate(path: &Path, config: &str) -> Result<()> {
         create_dir(path)?;
     }
     create_file(&path.join("config.toml"), config)?;
-    create_dir(path.join("content"))?;
+    create_dir(path.join("schema"))?;
+    create_file(&path.join("schema/modelcard.schema.json"), &schema::get_schema())?;
     create_dir(path.join("templates"))?;
+    create_file(&path.join("templates/modelcard.md.jinja"), &templates::get_md())?;
+    create_file(&path.join("templates/modelcard.html.jinja"), &templates::get_html())?;
 
     Ok(())
 }
@@ -145,7 +151,7 @@ mod tests {
         populate(&dir, "").expect("Could not populate modelcards directories");
 
         assert!(dir.join("config.toml").exists());
-        assert!(dir.join("content").exists());
+        assert!(dir.join("schema").exists());
         assert!(dir.join("templates").exists());
 
         remove_dir_all(&dir).unwrap();
@@ -158,7 +164,7 @@ mod tests {
 
         assert!(dir.exists());
         assert!(dir.join("config.toml").exists());
-        assert!(dir.join("content").exists());
+        assert!(dir.join("schema").exists());
         assert!(dir.join("templates").exists());
 
         remove_dir_all(&dir).unwrap();

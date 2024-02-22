@@ -6,7 +6,6 @@ use clap::{CommandFactory, Parser};
 
 mod cli;
 mod cmd;
-mod resources;
 
 fn main() {
     let cli = Cli::parse();
