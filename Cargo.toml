@@ -19,6 +19,8 @@ include = ["src/**/*", "LICENSE", "README.md"]
 anyhow = "1.0.80"
 clap = { version = "4.5.1", features = ["derive"] }
 clap_complete = "4.5.1"
+serde_json = "1.0.114"
+valico = "4.0.0"
 
 [dev-dependencies]
 same-file = "1"

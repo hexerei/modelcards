@@ -33,28 +33,24 @@ pub enum Command {
 
     /// Deletes the output directory if there is one and builds the modelcard
     Build {
-        /// Force the base URL to be that value (defaults to the one in config.toml)
-        #[clap(short = 'u', long)]
-        base_url: Option<String>,
+        /// Force the source json modelcard data file to be that value (defaults to the one in config.toml)
+        #[clap(short = 's', long)]
+        source: Option<String>,
 
-        /// Outputs the generated site in the given path (by default 'public' dir in project root)
+        /// Outputs the generated site in the given path (by default 'card' dir in project root)
         #[clap(short = 'o', long)]
         output_dir: Option<PathBuf>,
 
-        /// Force building the site even if output directory is non-empty
+        /// Force building the modelcard even if output directory is non-empty
         #[clap(short = 'f', long)]
         force: bool,
-
-        /// Include drafts when loading the site
-        #[clap(long)]
-        drafts: bool,
     },
 
     /// Try to build the project without rendering it. Checks inputs
     Check {
-        /// Include drafts when loading the site
-        #[clap(long)]
-        drafts: bool,
+        /// Force the source json modelcard data file to be that value (defaults to the one in config.toml)
+        #[clap(short = 's', long)]
+        source: Option<String>,
     },
 
     /// Generate shell completion

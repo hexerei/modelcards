@@ -6,6 +6,7 @@ use clap::{CommandFactory, Parser};
 
 mod cli;
 mod cmd;
+mod utils;
 
 fn main() {
     let cli = Cli::parse();
@@ -23,12 +24,12 @@ fn main() {
                 std::process::exit(1);
             }
         },
-        Command::Build { base_url, output_dir, force, drafts } => {
-            println!("Build base_url={:?}, output_dir={:?}, force={force}, drafts={drafts}", base_url, output_dir);
+        Command::Build { source, output_dir, force } => {
+            println!("Build base_url={:?}, output_dir={:?}, force={force}", source, output_dir);
             todo!();
         },
-        Command::Check { drafts } => {
-            println!("Check drafts={drafts}");
+        Command::Check { source } => {
+            println!("Check source={:?}", source);
             todo!();
         },
         Command::Completion { shell } => {
