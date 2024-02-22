@@ -1,3 +1,40 @@
+use std::path::PathBuf;
+
+use cli::{Cli, Command};
+
+use clap::{CommandFactory, Parser};
+
+mod cli;
+mod cmd;
+mod resources;
+
 fn main() {
-    println!("Hello, world!");
+    let cli = Cli::parse();
+    let cli_dir: PathBuf = cli.root.canonicalize().unwrap_or_else(|e| {
+        eprintln!("Could not find canonical path of root dir: {}", cli.root.display());
+        eprintln!("{:?}", e);
+        std::process::exit(1);
+    });
+    println!("CLI Directory: {:?}", cli_dir);
+    match cli.command {
+        Command::Init { name, force } => {
+            if let Err(e) = cmd::create_new_project(&name, force) {
+                eprintln!("Could not create project");
+                eprintln!("{:?}", e);
+                std::process::exit(1);
+            }
+        },
+        Command::Build { base_url, output_dir, force, drafts } => {
+            println!("Build base_url={:?}, output_dir={:?}, force={force}, drafts={drafts}", base_url, output_dir);
+            todo!();
+        },
+        Command::Check { drafts } => {
+            println!("Check drafts={drafts}");
+            todo!();
+        },
+        Command::Completion { shell } => {
+            let cmd = &mut Cli::command();
+            clap_complete::generate(shell, cmd, cmd.get_name().to_string(), &mut std::io::stdout());
+        }
+    }
 }

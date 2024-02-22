@@ -1,8 +1,24 @@
 [package]
 name = "modelcards"
 version = "0.1.0"
+authors = ["Daniel Vorhauer <daniel@hexerei.net>"]
 edition = "2021"
+license = "MIT"
+readme = "README.md"
+description = "A fast modelcard generator with built-in templates"
+homepage = "https://www.hexerei.net"
+repository = "https://github.com/hexerei/modelcard"
+keywords = ["modelcard", "generator", "model", "ai", "ml", "governance"]
+
+include = ["src/**/*", "LICENSE", "README.md"]
+
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anyhow = "1.0.80"
+clap = { version = "4.5.1", features = ["derive"] }
+clap_complete = "4.5.1"
+
+[dev-dependencies]
+same-file = "1"
