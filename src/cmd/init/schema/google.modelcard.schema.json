@@ -300,9 +300,7 @@
           },
           "image": {
             "description": "The graphic, encoded as a base64 string.",
-            "type": "string",
-            "contentEncoding": "base64",
-            "contentMediaType": "image/png"
+            "type": "string"
           }
         }
       },
