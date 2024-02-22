@@ -17,7 +17,12 @@ fn check_against_schema(path: &Path) -> bool {
     //let schema = scope.compile_and_return(schema_v7, true).ok().unwrap();
     match scope.compile_and_return(schema_v7, true) {
         Ok(s) => {
-            s.validate(&modelcard).is_valid()
+            let vs = s.validate(&modelcard);
+            if !vs.is_valid() {
+                eprintln!("Validation failed: {:?}", vs);
+                return false;
+            }
+            true
         },
         Err(e) => {
             eprintln!("Could not compile schema: {:?}", e);
