@@ -30,7 +30,12 @@ fn main() {
         },
         Command::Check { source } => {
             println!("Check source={:?}", source);
-            todo!();
+            if cmd::check_project(&cli_dir, source) {
+                println!("Project is valid");
+            } else {
+                eprintln!("Project is not valid");
+                std::process::exit(1);
+            }
         },
         Command::Completion { shell } => {
             let cmd = &mut Cli::command();

@@ -6,13 +6,20 @@ use std::{
 
 use valico::json_schema::scope;
 
-pub fn check_project() -> bool {
-    check_against_schema(Path::new("."))
+pub fn check_project(path: &Path, modelcard: Option<String>) -> bool {
+    if let Some(modelcard) = modelcard {
+        let modelcard = Path::new(&modelcard);
+        check_against_schema(path, modelcard)
+    } else {
+        let sample = path.join("sample.json");
+        let modelcard = Path::new(&sample);
+        check_against_schema(path, modelcard)
+    }
 }
 
-fn check_against_schema(path: &Path) -> bool {
+fn check_against_schema(path: &Path, modelcard: &Path) -> bool {
     let schema_v7 = load_json_file(&path.join("schema/modelcard.schema.json"));
-    let modelcard = load_json_file(&path.join("sample.json"));
+    let modelcard = load_json_file(&modelcard);
     let mut scope = scope::Scope::new();
     //let schema = scope.compile_and_return(schema_v7, true).ok().unwrap();
     match scope.compile_and_return(schema_v7, true) {
@@ -75,6 +82,6 @@ mod tests {
     fn check_valid_against_schema() {
         let dir = get_temp_dir("test_check_against_schema", true);
         populate_modelcards_dir(&dir).expect("Could not populate modelcards directory");
-        assert!(check_against_schema(&dir));
+        assert!(check_against_schema(&dir, &dir.join("sample.json")));
     }
 }
