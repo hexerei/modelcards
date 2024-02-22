@@ -74,6 +74,7 @@ fn populate(path: &Path, config: &str) -> Result<()> {
         create_dir(path)?;
     }
     create_file(&path.join("config.toml"), config)?;
+    create_file(&path.join("sample.json"), &schema::get_sample())?;  
     create_dir(path.join("schema"))?;
     create_file(&path.join("schema/modelcard.schema.json"), &schema::get_schema())?;
     create_dir(path.join("templates"))?;

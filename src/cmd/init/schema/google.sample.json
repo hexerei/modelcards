@@ -1,0 +1,135 @@
+{
+    "model_details": {
+      "name": "Census Income Classifier",
+      "overview": "This is a wide and deep Keras model which aims to classify whether or not an individual has an income of over $50,000 based on various demopraphic features. The model is trained on the UCI Census Income Dataset. This is not a production model, and this dataset has traditionally only been used for research purposes. In this Model Card, you can review quantative components of the nmodel's performance and data, as well as information about the model's intended uses, limitations, and ethical considerations.",
+      "documentation": "",
+      "owners": [
+        {
+          "name": "Model Cards Team",
+          "contact": "model-cards@google.com"
+        }
+      ],
+      "version": {
+        "name": "7f4b6916-3b56-463b-8187-1e7a62ab9919",
+        "date": "2020-07-28",
+        "diff": "Trained on new test set"
+      },
+      "licenses": [
+        {
+          "MIT": "The MIT License (MIT)"
+        }
+      ],
+      "references": [
+        {
+          "reference": "http://vmDMCiUAQuyBKiXYxQzX.tfxhQVTEKrf20kIv4LGb,cwJGnx5qOyyPomJawSvNiR,H4RkxJ+uMuJ"
+        }
+      ],
+      "citations": [
+        {
+          "style": "ipsum",
+          "citation": "dolore officia sed Duis ullamco"
+        },
+        {
+          "style": "do sint",
+          "citation": "amet"
+        },
+        {
+          "seda06": "sint ex tempor",
+          "irure_9bd": false,
+          "ipsum_3": false,
+          "eu_ab": "voluptate",
+          "style": "nisi ut",
+          "citation": "non irure"
+        }
+      ],
+      "path": "//IT/models/census_income_classifier"
+    },
+    "quantitative_analysis": {
+      "performance_metrics": [
+        {
+          "type": "nostrud commodo enim qui amet",
+          "value": "sed Ut reprehenderit",
+          "confidence_interval": {
+            "commodo_e": 44918078.31990814,
+            "lower_bound": "Ut quis",
+            "upper_bound": "deserunt eu"
+          }
+        },
+        {
+          "veniamc33": 57503769.76187757,
+          "doloreb": -34540834,
+          "confidence_interval": {
+            "ut_8": -86958557.25769123,
+            "lower_bound": "sint voluptate",
+            "upper_bound": "ex et sit"
+          }
+        },
+        {
+          "type": "eu magna",
+          "value": "dolore est officia ullamco",
+          "slice": "non nostrud ut aliqua cillum",
+          "confidence_interval": {
+            "reprehenderit906": true,
+            "lower_bound": "cupidatat mollit",
+            "upper_bound": "ad magna Ut fugiat"
+          }
+        },
+        {
+          "aliqua0fe": "Ut",
+          "cillumf8": -83044094.83222118,
+          "value": "est sit",
+          "slice": "mollit laborum ipsum magna",
+          "confidence_interval": {
+            "Loremcc8": "mollit",
+            "lower_bound": "aliquip pariatur",
+            "upper_bound": "ad dolor voluptate consectetur eiusmod"
+          }
+        }
+      ],
+      "graphics": {
+        "exb2": false,
+        "proidentaa": true,
+        "fugiata": "et cillum dolor",
+        "sed_6": false,
+        "description": "reprehenderit"
+      }
+    },
+    "considerations": {
+      "officia_f": true,
+      "users": [
+        {
+          "minim3": "esse ullamco irure aliquip",
+          "Excepteur_42": -69800144.95390512,
+          "description": "anim culpa pariatur"
+        },
+        {
+          "incididunt_df1": -54882793,
+          "dolore9": false,
+          "non_57d": "consectetur non aute reprehenderit ex",
+          "description": "deserunt in anim"
+        },
+        {
+          "dolore_b9_": false,
+          "eiusmod_fd": "laborum quis irure ipsum mollit",
+          "description": "pariatur ipsum aliquip veniam adipisicing"
+        },
+        {
+          "nonda9": 25595396.67192845,
+          "enim549": "officia aliquip adipisicing ut eiusmod",
+          "doloref": 97402538.49673739,
+          "in6": false,
+          "description": "Duis"
+        },
+        {
+          "reprehenderit_9": false,
+          "description": "incididunt"
+        }
+      ],
+      "tradeoffs": [
+        {
+          "sed_d": 68995753.26312962,
+          "quie00": 63802050
+        }
+      ]
+    }
+  }
