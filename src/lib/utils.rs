@@ -4,7 +4,7 @@ use std::{
     path::Path
 };
 
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 
 // canonicalize(path) function on windows system returns a path with UNC.
 // Example: \\?\C:\Users\VssAdministrator\AppData\Local\Temp\new_project
@@ -32,6 +32,30 @@ pub fn load_json_file(file_path: &Path) -> serde_json::Value {
     let mut file_string = String::new();
     file.read_to_string(&mut file_string).unwrap();
     serde_json::from_str(&file_string).unwrap()
+}
+
+pub fn is_directory_empty(path: &Path, allow_hidden: bool) -> Result<bool> {
+    if path.is_dir() {
+        let mut entries = match path.read_dir() {
+            Ok(entries) => entries,
+            Err(e) => bail!("Could not read '{}' because of error: {}", path.to_string_lossy().to_string(), e),
+        };
+        if entries.any(|x| match x {
+            Ok(file) => {
+                if allow_hidden {
+                    !file.file_name().to_str().expect("Could not convert filename to &str").starts_with('.')
+                } else {
+                    true
+                }
+
+            },
+            Err(_) => true,
+        }) {
+            return Ok(false);
+        }
+        return Ok(true);
+    }
+    Ok(false)
 }
 
 
