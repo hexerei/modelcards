@@ -1,30 +1,43 @@
-use std::path::Path;
-use modelcards::validate::check_against_schema;
+use std::{
+    path::Path
+};
 
-pub fn check_project(path: &Path, modelcard: Option<String>) -> bool {
-    if let Some(modelcard) = modelcard {
-        let modelcard = Path::new(&modelcard);
-        check_against_schema(path, modelcard)
-    } else {
-        let sample = path.join("sample.json");
-        let modelcard = Path::new(&sample);
-        check_against_schema(path, modelcard)
+use crate::utils::load_json_file;
+use valico::json_schema::scope;
+
+pub fn check_against_schema(path: &Path, modelcard: &Path) -> bool {
+    let schema_v7 = load_json_file(&path.join("schema/modelcard.schema.json"));
+    let modelcard = load_json_file(&modelcard);
+    let mut scope = scope::Scope::new();
+    //let schema = scope.compile_and_return(schema_v7, true).ok().unwrap();
+    match scope.compile_and_return(schema_v7, true) {
+        Ok(s) => {
+            let vs = s.validate(&modelcard);
+            if !vs.is_valid() {
+                eprintln!("Validation failed: {:?}", vs);
+                return false;
+            }
+            true
+        },
+        Err(e) => {
+            eprintln!("Could not compile schema: {:?}", e);
+            false
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
+    use crate::assets::schema;
+    use crate::utils::create_file;
 
     use std::{
         env::temp_dir,
         fs::{create_dir, remove_dir_all},
         path::{PathBuf, Path}
     };
-
-    use super::*;
-    use modelcards::utils::create_file;
-    use modelcards::assets::schema;
-
     use anyhow::Result;
 
     fn get_temp_dir(path: &str, create: bool) -> PathBuf {

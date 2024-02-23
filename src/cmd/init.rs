@@ -3,12 +3,12 @@ use std::{
     path::Path
 };
 
-use crate::utils::{strip_unc, create_file};
+use modelcards::{
+    assets::{schema, templates},
+    utils::{strip_unc, create_file}
+};
 
 use anyhow::{bail, Result};
-
-pub mod schema;
-pub mod templates;
 
 pub fn create_new_project(name: &str, force: bool) -> Result<()> {
     let path = Path::new(name);

@@ -1,6 +1,6 @@
 use std::{
     fs::File,
-    io::Write,
+    io::{Read, Write},
     path::Path
 };
 
@@ -26,6 +26,14 @@ pub fn create_file(path: &Path, content: &str) -> Result<()> {
     file.write_all(content.as_bytes())?;
     Ok(())
 }
+
+pub fn load_json_file(file_path: &Path) -> serde_json::Value {
+    let mut file = File::open(file_path).unwrap();
+    let mut file_string = String::new();
+    file.read_to_string(&mut file_string).unwrap();
+    serde_json::from_str(&file_string).unwrap()
+}
+
 
 #[cfg(test)]
 mod tests {
