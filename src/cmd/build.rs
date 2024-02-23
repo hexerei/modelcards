@@ -1,4 +1,4 @@
-use std::{ffi::OsStr, path::Path};
+use std::{ffi::OsStr, fs::create_dir_all, path::Path};
 use modelcards::validate::check_against_schema;
 use anyhow::{bail, Result};
 use minijinja::{Environment, path_loader};
@@ -18,6 +18,10 @@ pub fn build_project(path: &Path, modelcard: Option<String>, out_dir: Option<Str
 
     let out_dir = out_dir.unwrap_or_else(|| path.join("cards").to_string_lossy().to_string());
     let out_dir = Path::new(&out_dir);
+
+    if !out_dir.exists() {
+        create_dir_all(out_dir)?;
+    }
 
     let filename = Path::new(modelcard.file_name().unwrap_or(OsStr::new("modelcard.json"))).with_extension("md");
     let target_file = out_dir.join(filename);
@@ -41,8 +45,13 @@ pub fn build_project(path: &Path, modelcard: Option<String>, out_dir: Option<Str
     let env = create_env();
     let template = env.get_template("modelcard.md.jinja").unwrap();
     let data = modelcards::utils::load_json_file(modelcard);
+    let tmp = template.render(&data);
 
-    println!("{}", template.render(&data).unwrap());
+    if tmp.is_ok() {
+        modelcards::utils::create_file(&target_file, &tmp.unwrap())?;
+    } else {
+        bail!("Could not render template");
+    }
 
     println!("Done!");
 
