@@ -1,15 +1,11 @@
 use std::path::Path;
 use modelcards::validate::check_against_schema;
+use anyhow::Result;
 
-pub fn check_project(path: &Path, modelcard: Option<String>) -> bool {
-    if let Some(modelcard) = modelcard {
-        let modelcard = Path::new(&modelcard);
-        check_against_schema(path, modelcard)
-    } else {
-        let sample = path.join("sample.json");
-        let modelcard = Path::new(&sample);
-        check_against_schema(path, modelcard)
-    }
+pub fn check_project(path: &Path, modelcard: Option<String>) -> Result<bool> {
+    let modelcard = modelcard.unwrap_or_else(|| "sample.json".to_string());
+    let modelcard = Path::new(&modelcard);
+    check_against_schema(path, modelcard)
 }
 
 #[cfg(test)]
@@ -50,6 +46,6 @@ mod tests {
     fn check_valid_against_schema() {
         let dir = get_temp_dir("test_check_against_schema", true);
         populate_modelcards_dir(&dir).expect("Could not populate modelcards directory");
-        assert!(check_against_schema(&dir, &dir.join("sample.json")));
+        assert!(check_against_schema(&dir, &dir.join("sample.json")).is_ok());
     }
 }
