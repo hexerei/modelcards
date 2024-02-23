@@ -33,13 +33,13 @@ pub enum Command {
 
     /// Deletes the output directory if there is one and builds the modelcard
     Build {
-        /// Force the source json modelcard data file to be that value (defaults to the one in config.toml)
+        /// The source modelcard data file to be build (defaults to all in 'data' dir in project root)
         #[clap(short = 's', long)]
         source: Option<String>,
 
         /// Outputs the generated site in the given path (by default 'card' dir in project root)
         #[clap(short = 'o', long)]
-        output_dir: Option<PathBuf>,
+        output_dir: Option<String>,
 
         /// Force building the modelcard even if output directory is non-empty
         #[clap(short = 'f', long)]
@@ -48,8 +48,8 @@ pub enum Command {
 
     /// Try to build the project without rendering it. Checks inputs
     Check {
-        /// Force the source json modelcard data file to be that value (defaults to the one in config.toml)
-        #[clap(short = 's', long)]
+        /// The source modelcard data file to be verified (defaults to sample.json)
+        #[clap(default_value = "sample.json")]
         source: Option<String>,
     },
 
