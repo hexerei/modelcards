@@ -1,11 +1,14 @@
-use std::{
-    path::Path
-};
-
+use std::path::Path;
 use crate::utils::load_json_file;
+use anyhow::{bail, Result};
 use valico::json_schema::scope;
 
-pub fn check_against_schema(path: &Path, modelcard: &Path) -> bool {
+pub fn check_against_schema(path: &Path, modelcard: &Path) -> Result<bool> {
+
+    if !path.exists() {
+        bail!("Path does not exist: {:?}", path);
+    }
+
     let schema_v7 = load_json_file(&path.join("schema/modelcard.schema.json"));
     let modelcard = load_json_file(&modelcard);
     let mut scope = scope::Scope::new();
@@ -14,16 +17,30 @@ pub fn check_against_schema(path: &Path, modelcard: &Path) -> bool {
         Ok(s) => {
             let vs = s.validate(&modelcard);
             if !vs.is_valid() {
-                eprintln!("Validation failed: {:?}", vs);
-                return false;
+                let mut errors = vec![];
+                for e in vs.errors.into_iter() {
+                    errors.push(format!("[{}] {}: {}", e.get_code(), e.get_path(), e.get_title()));
+                    if e.get_detail().is_some() {
+                        errors.push(format!("    {}", e.get_detail().unwrap()));
+                    }
+                    //TODO: add state errors from any_of and one_of
+                }
+                let mut missing = vec![];
+                for e in vs.missing.into_iter() {
+                    missing.push(format!("{}", e));
+                }
+                if !missing.is_empty() {
+                    errors.push(format!("Missing fields:\n - {}", missing.join("\n - ")));
+                }
+                bail!("Validation failed:\n{}", errors.join("\n"));
             }
-            true
         },
         Err(e) => {
-            eprintln!("Could not compile schema: {:?}", e);
-            false
+            bail!("Could not compile schema: {:?}", e);
         }
     }
+
+    Ok(true)
 }
 
 #[cfg(test)]
@@ -63,6 +80,6 @@ mod tests {
     fn check_valid_against_schema() {
         let dir = get_temp_dir("test_check_against_schema", true);
         populate_modelcards_dir(&dir).expect("Could not populate modelcards directory");
-        assert!(check_against_schema(&dir, &dir.join("sample.json")));
+        assert!(check_against_schema(&dir, &dir.join("sample.json")).is_ok());
     }
 }
