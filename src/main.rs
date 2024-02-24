@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use cli::{Cli, Command};
+use modelcards::utils::console;
 
 use clap::{CommandFactory, Parser};
 
@@ -43,40 +44,3 @@ fn main() {
     }
 }
 
-#[allow(dead_code)]
-mod console {
-    //use std::io::Write;
-
-    pub fn error(msg: &str, e: Option<impl std::fmt::Debug>) {
-        eprintln!("Error: {}", msg);
-        if let Some(e) = e {
-            eprintln!("{:?}", e);
-        }
-    }
-
-    pub fn error_exit(msg: &str, e: Option<impl std::fmt::Debug>) {
-        error(msg, e);
-        std::process::exit(1);
-    }
-
-    pub fn warn(msg: &str) {
-        eprintln!("Warning: {}", msg);
-    }
-
-    pub fn info(msg: &str) {
-        println!("{}", msg);
-    }
-
-    pub fn success_exit(msg: &str) {
-        info(msg);
-        std::process::exit(0);
-    }
-
-    #[cfg(debug_assertions)]
-    pub fn debug(msg: &str) {
-        println!("Debug: {}", msg);
-    }
-
-    #[cfg(not(debug_assertions))]
-    pub fn debug(_msg: &str) {}
-}

@@ -9,8 +9,14 @@ pub fn check_against_schema(path: &Path, modelcard: &Path) -> Result<bool> {
         bail!("Path does not exist: {:?}", path);
     }
 
-    let schema_v7 = load_json_file(&path.join("schema/modelcard.schema.json"));
-    let modelcard = load_json_file(&modelcard);
+    let schema_file = if path.is_dir() {
+        //TODO: get schema from config
+        path.join("schema/modelcard.schema.json")
+    } else {
+        path.to_path_buf()
+    };
+    let schema_v7 = load_json_file(&schema_file)?;
+    let modelcard = load_json_file(&modelcard)?;
     let mut scope = scope::Scope::new();
     //let schema = scope.compile_and_return(schema_v7, true).ok().unwrap();
     match scope.compile_and_return(schema_v7, true) {

@@ -27,11 +27,11 @@ pub fn create_file(path: &Path, content: &str) -> Result<()> {
     Ok(())
 }
 
-pub fn load_json_file(file_path: &Path) -> serde_json::Value {
-    let mut file = File::open(file_path).unwrap();
-    let mut file_string = String::new();
-    file.read_to_string(&mut file_string).unwrap();
-    serde_json::from_str(&file_string).unwrap()
+pub fn load_json_file(file_path: &Path) -> Result<serde_json::Value> {
+    let mut file = File::open(file_path).with_context(|| format!("Failed to open file {}", file_path.display()))?;
+        let mut file_string = String::new();
+        file.read_to_string(&mut file_string).unwrap();
+        Ok(serde_json::from_str(&file_string).unwrap())
 }
 
 pub fn is_directory_empty(path: &Path, allow_hidden: bool) -> Result<bool> {
@@ -57,6 +57,44 @@ pub fn is_directory_empty(path: &Path, allow_hidden: bool) -> Result<bool> {
     }
     Ok(false)
 }
+
+pub mod console {
+    //use std::io::Write;
+
+    pub fn error(msg: &str, e: Option<impl std::fmt::Debug>) {
+        eprintln!("Error: {}", msg);
+        if let Some(e) = e {
+            eprintln!("{:?}", e);
+        }
+    }
+
+    pub fn error_exit(msg: &str, e: Option<impl std::fmt::Debug>) {
+        error(msg, e);
+        std::process::exit(1);
+    }
+
+    pub fn warn(msg: &str) {
+        eprintln!("Warning: {}", msg);
+    }
+
+    pub fn info(msg: &str) {
+        println!("{}", msg);
+    }
+
+    pub fn success_exit(msg: &str) {
+        info(msg);
+        std::process::exit(0);
+    }
+
+    #[cfg(debug_assertions)]
+    pub fn debug(msg: &str) {
+        println!("Debug: {}", msg);
+    }
+
+    #[cfg(not(debug_assertions))]
+    pub fn debug(_msg: &str) {}
+}
+
 
 
 #[cfg(test)]

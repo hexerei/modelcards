@@ -26,6 +26,7 @@ path = "src/main.rs"
 anyhow = "1.0.80"
 clap = { version = "4.5.1", features = ["derive"] }
 clap_complete = "4.5.1"
+config = "0.14.0"
 minijinja = { version = "1.0.12", features = ["loader"] }
 serde_json = "1.0.114"
 valico = "4.0.0"

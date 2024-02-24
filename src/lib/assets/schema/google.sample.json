@@ -44,6 +44,9 @@
       ],
       "path": "//IT/models/census_income_classifier"
     },
+    "model_parameters": {
+        "model_architecture": "simple and fast"
+    },
     "quantitative_analysis": {
       "performance_metrics": [
         {
