@@ -1,12 +1,14 @@
 use std::path::PathBuf;
 
 use cli::{Cli, Command};
+use settings::Settings;
 use modelcards::utils::console;
 
 use clap::{CommandFactory, Parser};
 
 mod cli;
 mod cmd;
+mod settings;
 
 fn main() {
     let cli = Cli::parse();
@@ -15,15 +17,21 @@ fn main() {
         unreachable!(); // Add this line to satisfy the expected return type of `PathBuf`
     });
     console::debug(&format!("CLI path: {:?}", cli_dir));
+
+    let settings = Settings::new(cli.config.display().to_string().as_str()).expect("Could not load settings");
+    console::debug(&format!("Settings: {:?}", settings));
+
     match cli.command {
         Command::Init { name, force } => {
             if let Err(e) = cmd::create_new_project(&name, force) {
                 console::error_exit("Could not create project", Some(e));
             }
         },
-        Command::Build { source, output_dir, force } => {
-            console::debug(&format!("Build base_url={:?}, output_dir={:?}, force={force}", source, output_dir));
-            if let Err(e) = cmd::build_project(&cli_dir, source, output_dir, force) {
+        Command::Build { source, target, force } => {
+            console::debug(&format!("Build base_url={:?}, output_dir={:?}, force={:?}", source, target, force));
+            let source = source.unwrap_or(settings.input.data);
+            let target = target.unwrap_or(settings.output.target);
+            if let Err(e) = cmd::build_project(&cli_dir, Some(source), Some(target), force.unwrap_or(settings.force)) {
                 console::error_exit("Could not build project", Some(e));
             }
             console::success_exit("Project successfully buildt!");

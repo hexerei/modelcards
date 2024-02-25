@@ -560,6 +560,7 @@ dependencies = [
  "config",
  "minijinja",
  "same-file",
+ "serde",
  "serde_json",
  "valico",
 ]
