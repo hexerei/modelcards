@@ -7,7 +7,7 @@ license = "Apache License 2.0"
 readme = "README.md"
 description = "A fast modelcard generator with built-in templates"
 homepage = "https://www.hexerei.net"
-repository = "https://github.com/hexerei/modelcard"
+repository = "https://github.com/hexerei/modelcards"
 keywords = ["modelcard", "generator", "model", "ai", "ml", "governance"]
 
 include = ["src/**/*", "LICENSE", "README.md"]
