@@ -4,7 +4,10 @@ Commandline Tool to generate modelcards.
 
 ## Features
 
-- Create modelcard from template
+- [x] Create modelcard from template
+- [ ] Hierarchical settings (default, config.toml, env, cli args)
+- [ ] Prettier output with crossterm crate
+- [ ] Data input from terminal via inquire crate
 
 ## Contributions
 
