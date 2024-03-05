@@ -14,6 +14,8 @@ Commandline Tool to generate modelcards.
 The schema and templates are based on Google's Model Card Toolkit to ensure compatability with integrations.
 These schema and templates are copyright 2019 The TensorFlow Authors. All rights reserved.
 
+Integration of HuggingCard Templates is planned.
+
 ## References
 
 - <https://www.nocode.ai/ai-model-cards-101-an-introduction-to-the-key-concepts-and-terminology/>

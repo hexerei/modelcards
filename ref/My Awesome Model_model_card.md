@@ -225,7 +225,7 @@ More information needed
 
 <!-- This section provides another layer of transparency and accountability. Whose views is this model card representing? How many voices were included in its construction? Etc. -->
 
-D, a, n, i, e, l,  , V, o, r, h, a, u, e, r, ,,  , F, r, a, n, z,  , M, u, s, t, e, r, m, a, n, n
+Daniel Vorhauer, Franz Mustermann
 
 # Model Card Contact
 
