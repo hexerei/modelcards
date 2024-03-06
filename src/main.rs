@@ -21,6 +21,7 @@ fn main() {
     let settings = Settings::new(cli.config.display().to_string().as_str()).expect("Could not load settings");
     console::debug(&format!("Settings: {:?}", settings));
 
+
     match cli.command {
         Command::Init { name, force } => {
             if let Err(e) = cmd::create_new_project(&name, force) {
@@ -38,7 +39,8 @@ fn main() {
         },
         Command::Check { source } => {
             console::debug(&format!("Check source={:?}", source));
-            let valid = cmd::check_project(&cli_dir, source);
+            let source = source.unwrap_or(settings.input.data);
+            let valid = cmd::check_project(&cli_dir, Some(source));
             if valid.is_ok() {
                 console::success_exit("Project is valid!");
             } else {
