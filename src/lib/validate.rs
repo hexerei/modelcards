@@ -88,4 +88,12 @@ mod tests {
         populate_modelcards_dir(&dir).expect("Could not populate modelcards directory");
         assert!(check_against_schema(&dir, &dir.join("sample.json")).is_ok());
     }
+
+    #[test]
+    fn check_valid_against_missing_schema() {
+        let dir = get_temp_dir("test_check_missing_schema", true);
+        populate_modelcards_dir(&dir).expect("Could not populate modelcards directory");
+        //force error with missing schema
+        assert!(!check_against_schema(&dir, &dir.join("sample_2.json")).is_ok());
+    }
 }
