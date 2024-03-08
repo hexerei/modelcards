@@ -1,138 +1,214 @@
 {
-    "model_details": {
-      "name": "Census Income Classifier",
-      "overview": "This is a wide and deep Keras model which aims to classify whether or not an individual has an income of over $50,000 based on various demopraphic features. The model is trained on the UCI Census Income Dataset. This is not a production model, and this dataset has traditionally only been used for research purposes. In this Model Card, you can review quantative components of the nmodel's performance and data, as well as information about the model's intended uses, limitations, and ethical considerations.",
-      "documentation": "",
-      "owners": [
-        {
-          "name": "Model Cards Team",
-          "contact": "model-cards@google.com"
-        }
-      ],
-      "version": {
-        "name": "7f4b6916-3b56-463b-8187-1e7a62ab9919",
-        "date": "2020-07-28",
-        "diff": "Trained on new test set"
+  "schema_version": "2.0",
+  "model_details": {
+    "name": "Census Income Classifier",
+    "overview": "This is a wide and deep Keras model which aims to classify whether or not an individual has an income of over $50,000 based on various demopraphic features. The model is trained on the UCI Census Income Dataset. This is not a production model, and this dataset has traditionally only been used for research purposes. In this Model Card, you can review quantative components of the nmodel's performance and data, as well as information about the model's intended uses, limitations, and ethical considerations.",
+    "documentation": "A thorough description of the model and its usage.",
+    "owners": [
+      {
+        "name": "Business Team",
+        "contact": "business@company.com"
       },
-      "licenses": [
-        {
-          "identifier": "Apache-2.0"
-        }
-      ],
-      "references": [
-        {
-          "reference": "http://vmDMCiUAQuyBKiXYxQzX.tfxhQVTEKrf20kIv4LGb,cwJGnx5qOyyPomJawSvNiR,H4RkxJ+uMuJ"
-        }
-      ],
-      "citations": [
-        {
-          "style": "ipsum",
-          "citation": "dolore officia sed Duis ullamco"
-        },
-        {
-          "style": "do sint",
-          "citation": "amet"
-        },
-        {
-          "seda06": "sint ex tempor",
-          "irure_9bd": false,
-          "ipsum_3": false,
-          "eu_ab": "voluptate",
-          "style": "nisi ut",
-          "citation": "non irure"
-        }
-      ],
-      "path": "//IT/models/census_income_classifier"
-    },
-    "model_parameters": {
-        "model_architecture": "simple and fast"
-    },
-    "quantitative_analysis": {
-      "performance_metrics": [
-        {
-          "type": "nostrud commodo enim qui amet",
-          "value": "sed Ut reprehenderit",
-          "confidence_interval": {
-            "commodo_e": 44918078.31990814,
-            "lower_bound": "Ut quis",
-            "upper_bound": "deserunt eu"
-          }
-        },
-        {
-          "veniamc33": 57503769.76187757,
-          "doloreb": -34540834,
-          "confidence_interval": {
-            "ut_8": -86958557.25769123,
-            "lower_bound": "sint voluptate",
-            "upper_bound": "ex et sit"
-          }
-        },
-        {
-          "type": "eu magna",
-          "value": "dolore est officia ullamco",
-          "slice": "non nostrud ut aliqua cillum",
-          "confidence_interval": {
-            "reprehenderit906": true,
-            "lower_bound": "cupidatat mollit",
-            "upper_bound": "ad magna Ut fugiat"
-          }
-        },
-        {
-          "aliqua0fe": "Ut",
-          "cillumf8": -83044094.83222118,
-          "value": "est sit",
-          "slice": "mollit laborum ipsum magna",
-          "confidence_interval": {
-            "Loremcc8": "mollit",
-            "lower_bound": "aliquip pariatur",
-            "upper_bound": "ad dolor voluptate consectetur eiusmod"
-          }
-        }
-      ],
-      "graphics": {
-        "exb2": false,
-        "proidentaa": true,
-        "fugiata": "et cillum dolor",
-        "sed_6": false,
-        "description": "reprehenderit"
+      {
+        "name": "Data Science Team",
+        "contact": "datascience@company.com"
       }
+    ],
+    "version": {
+      "name": "7f4b6916-3b56-463b-8187-1e7a62ab9919",
+      "date": "2020-07-28",
+      "diff": "Trained on new test set"
     },
-    "considerations": {
-      "officia_f": true,
-      "users": [
-        {
-          "minim3": "esse ullamco irure aliquip",
-          "Excepteur_42": -69800144.95390512,
-          "description": "anim culpa pariatur"
+    "licenses": [
+      {
+        "identifier": "Apache-2.0"
+      }
+    ],
+    "references": [
+      {
+        "reference": "https://archive.ics.uci.edu/ml/datasets/Census+Income"
+      }
+    ],
+    "citations": [
+      {
+        "style": "ipsum",
+        "citation": "dolore officia sed Duis ullamco"
+      }
+    ],
+    "path": "//IT/models/census_income_classifier"
+  },
+  "model_parameters": {
+    "model_architecture": "The architecture of the model.",
+    "data": [
+      {
+        "name": "Train Set",
+        "link": "https://archive.ics.uci.edu/ml/datasets/Census+Income",
+        "description": "The UCI Census Income Dataset is a widely used dataset for research purposes. It contains demographic information about individuals, as well as a binary label indicating whether or not the individual has an income of over $50,000. The dataset is used to train a model to predict this label based on the demographic information. The dataset is widely used for research purposes, but is not used in production settings. The dataset is not considered to be a sensitive dataset, and is not subject to privacy regulations. The dataset is not considered to be a sensitive dataset, and is not subject to privacy regulations.",
+        "sensitive": {
+          "sensitive_data": ["race", "sex", "native_country"]
         },
-        {
-          "incididunt_df1": -54882793,
-          "dolore9": false,
-          "non_57d": "consectetur non aute reprehenderit ex",
-          "description": "deserunt in anim"
-        },
-        {
-          "dolore_b9_": false,
-          "eiusmod_fd": "laborum quis irure ipsum mollit",
-          "description": "pariatur ipsum aliquip veniam adipisicing"
-        },
-        {
-          "nonda9": 25595396.67192845,
-          "enim549": "officia aliquip adipisicing ut eiusmod",
-          "doloref": 97402538.49673739,
-          "in6": false,
-          "description": "Duis"
-        },
-        {
-          "reprehenderit_9": false,
-          "description": "incididunt"
+        "graphics": {
+          "description": "Distribution of race and sex in the training set.",
+          "collection": [
+            {
+              "name": "counts | Race",
+              "image": "https://archive.ics.uci.edu/ml/assets/MLimages/Large53.jpg"
+            },
+            {
+              "name": "counts | Sex",
+              "image": "https://archive.ics.uci.edu/ml/assets/MLimages/Large53.jpg"
+            }
+          ]
         }
-      ],
-      "tradeoffs": [
+      },
+      {
+        "name": "Eval Set",
+        "link": "https://archive.ics.uci.edu/ml/datasets/Census+Income",
+        "description": "Like the training set, we provide graphs showing the class distribution of the data we used to evaluate our model's performance.",
+        "sensitive": {
+          "sensitive_data": ["race", "sex"]
+        },
+        "graphics": {
+          "description": "Distribution of race and sex in the evaluation set.",
+          "collection": [
+            {
+              "name": "counts | Race",
+              "image": "https://archive.ics.uci.edu/ml/assets/MLimages/Large53.jpg"
+            },
+            {
+              "name": "counts | Sex",
+              "image": "https://archive.ics.uci.edu/ml/assets/MLimages/Large53.jpg"
+            }
+          ]
+        }
+      }
+    ],
+    "input_format": "CSV File",
+    "input_format_map": [
+      {
+        "key": "age",
+        "value": "numerical"
+      },
+      {
+        "key": "workclass",
+        "value": "categorical"
+      },
+      {
+        "key": "race",
+        "value": "categorical"
+      },
+      {
+        "key": "income",
+        "value": "numerical"
+      },
+      {
+        "key": "sex",
+        "value": "categorical"
+      },
+      {
+        "key": "occupation",
+        "value": "categorical"
+      },
+      {
+        "key": "relationship",
+        "value": "categorical"
+      }
+    ],
+    "output_format": "JSON",
+    "output_format_map": [
+      {
+        "key": "prediction",
+        "value": "numerical"
+      }
+    ]
+  },
+  "quantitative_analysis": {
+    "performance_metrics": [
+      {
+        "type": "binary_accuracy",
+        "value": "0.94",
+        "slice": "Race: Other",
+        "confidence_interval": {
+          "lower_bound": "0.87",
+          "upper_bound": "0.95"
+        }
+      },
+      {
+        "type": "binary_accuracy",
+        "value": "0.8",
+        "slice": "Race: White",
+        "confidence_interval": {
+          "lower_bound": "0.74",
+          "upper_bound": "0.85"
+        }
+      },
+      {
+        "type": "binary_accuracy",
+        "value": "0.89",
+        "slice": "Race: Black",
+        "confidence_interval": {
+          "lower_bound": "0.84",
+          "upper_bound": "0.91"
+        }
+      }
+    ],
+    "graphics": {
+      "description": "Binary accuracy over race, race/sex and sex.",
+      "collection": [
         {
-          "sed_d": 68995753.26312962,
-          "quie00": 63802050
+          "name": "binary_accuracy | Race",
+          "image": "https://archive.ics.uci.edu/ml/assets/MLimages/Large53.jpg"
+        },
+        {
+          "name": "binary_accuracy | Race, Sex",
+          "image": "https://archive.ics.uci.edu/ml/assets/MLimages/Large53.jpg"
+        },
+        {
+          "name": "binary_accuracy | Sex",
+          "image": "https://archive.ics.uci.edu/ml/assets/MLimages/Large53.jpg"
         }
       ]
     }
+  },
+  "considerations": {
+    "users": [
+      {
+        "description": "users from the business team."
+      },
+      {
+        "description": "members from human resources."
+      },
+      {
+        "description": "users from compliance."
+      },
+      {
+        "description": "users from legal."
+      }
+    ],
+    "use_cases": [
+      {
+        "description": "This dataset that this model was trained on was orginially created to support the machine learning community in coductiong empirical analysis of ML algorithms. The Adult Data Set can be used in fairness-related studies that compare inequalities accross sex and race, based on people's annual incomes."
+      }
+    ],
+    "limitations": [
+      {
+        "description": "This is a class-imbalanced dataset accross a variety of sensitive classes. The ratio of male-to-female examples is about 2:1 and there are far more examples with \"White\" attribute than every other race combined. Furthermore the ratio of $50,000 or less earner to $50,000 or more earners is just over 3:1. Due to the imbalance across income levels, we can see that our true negative rate seems quite high, while our true positive rate seems quite low. This is true to an even greater degree when we only look at the \"female\" sub-group, because there are even fewer female examples in the $50,000+ earner group, causing our model to overfit these examples. To avoid this, we can try various remidiation strategies in future iterations (e.g. undersampling, hyperparameter tuning, etc.), but we may not be able to fix all of the fairness issues."
+      }
+    ],
+    "tradeoffs": [
+      {
+        "description": "The model is not intended to be used in production settings."
+      }
+    ],
+    "ethical_considerations": [
+      {
+        "name": "We risk expressing the viewpoint that the attributes in this dataset are the only ones that are predictive of someone's income, even though we knot this is not the case.",
+        "mitigation_strategy": "As mentioned, some interventions may need to be performed to address the class imbalances in the dataset."
+      },
+      {
+        "name": "The current implementation of the model may not be fair to all subgroups of the population.",
+        "mitigation_strategy": "As above, reduce the imbalances of the dataset by collecting more samples."
+      }
+    ]
   }
+}
