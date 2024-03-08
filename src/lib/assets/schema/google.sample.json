@@ -31,8 +31,8 @@
     ],
     "citations": [
       {
-        "style": "ipsum",
-        "citation": "dolore officia sed Duis ullamco"
+        "style": "bibtex",
+        "citation": "@article{Cabrera2023ZenoAI,\ntitle={Zeno: An Interactive Framework for Behavioral Evaluation of Machine Learning},\nauthor={{\\'A}ngel Alexander Cabrera and Erica Fu and Donald Bertucci and Kenneth Holstein and Ameet Talwalkar and Jason I. Hong and Adam Perer},\njournal={Proceedings of the 2023 CHI Conference on Human Factors in Computing Systems},\nyear={2023},\nurl={https://api.semanticscholar.org/CorpusID:256697444}\n}"
       }
     ],
     "path": "//IT/models/census_income_classifier"
