@@ -62,9 +62,11 @@ pub mod console {
     //use std::io::Write;
 
     pub fn error(msg: &str, e: Option<impl std::fmt::Debug>) {
-        eprintln!("Error: {}", msg);
+        log::error!("{}", msg);
+        //eprintln!("Error: {}", msg);
         if let Some(e) = e {
-            eprintln!("{:?}", e);
+            log::error!("{:?}", e);
+            //eprintln!("{:?}", e);
         }
     }
 
@@ -74,11 +76,13 @@ pub mod console {
     }
 
     pub fn warn(msg: &str) {
-        eprintln!("Warning: {}", msg);
+        log::warn!("{}", msg);
+        //eprintln!("Warning: {}", msg);
     }
 
     pub fn info(msg: &str) {
-        println!("{}", msg);
+        log::info!("{}", msg);
+        //println!("{}", msg);
     }
 
     pub fn success_exit(msg: &str) {
@@ -88,7 +92,8 @@ pub mod console {
 
     #[cfg(debug_assertions)]
     pub fn debug(msg: &str) {
-        println!("Debug: {}", msg);
+        log::debug!("{}", msg);
+        //println!("Debug: {}", msg);
     }
 
     #[cfg(not(debug_assertions))]

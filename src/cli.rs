@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
 use clap_complete::Shell;
+use clap_verbosity_flag::Verbosity;
 
 #[derive(Parser)]
 #[clap(version, author, about)]
@@ -13,6 +14,9 @@ pub struct Cli {
     /// Path to a config file other than config.toml in the root of project
     #[clap(short = 'c', long, default_value = "config.toml")]
     pub config: PathBuf,
+
+    #[command(flatten)]
+    pub verbose: Verbosity,
 
     #[clap(subcommand)]
     pub command: Command,

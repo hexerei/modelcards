@@ -34,12 +34,12 @@ pub fn build_project(path: &Path, modelcard: Option<String>, target: Option<Stri
         bail!("Project could not be validated!\n{:?}", e);
     }
 
-    println!("Building project...");
+    log::info!("Building project...");
 
-    println!("Project: {}", path.to_string_lossy().to_string());
-    println!("Modelcard: {}", modelcard.to_string_lossy().to_string());
-    println!("Template: {}", path.join("templates/modelcard.md.jinja").to_string_lossy().to_string());
-    println!("Output: {}", target_file.to_string_lossy().to_string());
+    log::info!("Project: {}", path.to_string_lossy().to_string());
+    log::info!("Modelcard: {}", modelcard.to_string_lossy().to_string());
+    log::info!("Template: {}", path.join("templates/modelcard.md.jinja").to_string_lossy().to_string());
+    log::info!("Output: {}", target_file.to_string_lossy().to_string());
 
     // render the template
     match render_template(&path.join("templates/modelcard.md.jinja"), modelcard.as_path()) {
@@ -47,7 +47,7 @@ pub fn build_project(path: &Path, modelcard: Option<String>, target: Option<Stri
         Err(e) => bail!("Could not render template: {:?}", e),
     }
 
-    println!("Done!");
+    log::info!("Done!");
 
     Ok(true)
 }

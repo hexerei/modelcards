@@ -12,14 +12,15 @@ mod settings;
 
 fn main() {
     let cli = Cli::parse();
+    env_logger::Builder::new().filter_level(cli.verbose.log_level_filter()).init();
     let cli_dir: PathBuf = cli.root.canonicalize().unwrap_or_else(|e| {
         console::error_exit(&format!("Could not find canonical path of root dir: {}", cli.root.display()), Some(e));
         unreachable!(); // Add this line to satisfy the expected return type of `PathBuf`
     });
-    console::debug(&format!("CLI path: {:?}", cli_dir));
+    log::debug!("CLI path: {:?}", cli_dir);
 
     let settings = Settings::new(cli.config.display().to_string().as_str()).expect("Could not load settings");
-    console::debug(&format!("Settings: {:?}", settings));
+    log::debug!("Settings: {:?}", settings);
 
 
     match cli.command {
@@ -29,7 +30,7 @@ fn main() {
             }
         },
         Command::Build { source, target, force } => {
-            console::debug(&format!("Build base_url={:?}, output_dir={:?}, force={:?}", source, target, force));
+            log::debug!("Build base_url={:?}, output_dir={:?}, force={:?}", source, target, force);
             let source = source.unwrap_or(settings.input.data);
             let target = target.unwrap_or(settings.output.target);
             if let Err(e) = cmd::build_project(&cli_dir, Some(source), Some(target), force.unwrap_or(settings.force)) {
@@ -38,7 +39,7 @@ fn main() {
             console::success_exit("Project successfully buildt!");
         },
         Command::Check { source } => {
-            console::debug(&format!("Check source={:?}", source));
+            log::debug!("Check source={:?}", source);
             let source = source.unwrap_or(settings.input.data);
             let valid = cmd::check_project(&cli_dir, Some(source));
             if valid.is_ok() {

@@ -65,12 +65,12 @@ impl Settings {
             // Eg.. `MC_VERBOSE=1 ./target/modelcards` would set the `verbose` key
             .add_source(Environment::with_prefix("mc"))
             // You may also programmatically change settings
-            .set_override("verbose", true)?
+            //.set_override("verbose", true)?
             .build()?;
 
         // Now that we're done, let's access our configuration
-        println!("verbose: {:?}", s.get_bool("verbose"));
-        println!("project_dir: {:?}", s.get::<String>("project_dir"));
+        log::debug!("verbose: {:?}", s.get_bool("verbose"));
+        log::debug!("project_dir: {:?}", s.get::<String>("project_dir"));
 
         // You can deserialize (and thus freeze) the entire configuration as
         s.try_deserialize()
