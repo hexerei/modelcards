@@ -57,6 +57,20 @@ pub enum Command {
         source: Option<String>,
     },
 
+    /// Validate the modelcard data file against the schema
+    Validate {
+        /// The source modelcard data file to be verified
+        modeldata: String,
+
+        /// The schema file to validate against (defaults to build-in schema)
+        #[clap(short = 's', long)]
+        schema: Option<String>,
+
+        /// The defaults file to use for missing values (defaults to empty)
+        #[clap(short = 'd', long)]
+        defaults: Option<String>,
+    },
+
     /// Generate shell completion
     Completion {
         /// Shell to generate completion for

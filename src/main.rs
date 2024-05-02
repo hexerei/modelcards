@@ -24,6 +24,9 @@ fn main() {
 
 
     match cli.command {
+        Command::Validate { modeldata, schema, defaults } => {
+            log::debug!("Validate data={:?}, schema={:?}, defaults={:?}", modeldata, schema, defaults);
+        }
         Command::Init { name, force } => {
             if let Err(e) = cmd::create_new_project(&name, force) {
                 console::error_exit("Could not create project", Some(e));
