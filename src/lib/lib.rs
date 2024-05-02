@@ -1,7 +1,8 @@
-pub mod validate;
 pub mod assets;
-pub mod utils;
+pub mod merge;
 pub mod render;
+pub mod utils;
+pub mod validate;
 
 pub enum Theme {
     HuggingFace,
