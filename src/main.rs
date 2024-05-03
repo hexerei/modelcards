@@ -26,7 +26,22 @@ fn main() {
     match cli.command {
         Command::Validate { modeldata, schema, defaults } => {
             log::debug!("Validate data={:?}, schema={:?}, defaults={:?}", modeldata, schema, defaults);
-        }
+            if cmd::validate_modelcard(modeldata, schema, defaults) {
+                console::success_exit("Modelcard is valid!");
+            } else {
+                console::success_exit("Modelcard is not valid!");
+                //console::error_exit("Modelcard is not valid!", None);
+            }
+        },
+        Command::Render { modeldata, template, defaults } => {
+            log::debug!("Render data={:?}, template={:?}, defaults={:?}", modeldata, template, defaults);
+            if cmd::render_modelcard(modeldata, template, defaults) {
+                console::success_exit("Modelcard successfully rendered!");
+            } else {
+                console::success_exit("Could not render modelcard!");
+                //console::error_exit("Could not render modelcard!", None);
+            }
+        },
         Command::Init { name, force } => {
             if let Err(e) = cmd::create_new_project(&name, force) {
                 console::error_exit("Could not create project", Some(e));

@@ -71,6 +71,20 @@ pub enum Command {
         defaults: Option<String>,
     },
 
+    /// Render the modelcard using template
+    Render {
+        /// The source modelcard data file to be verified
+        modeldata: String,
+
+        /// The jinjia template file to use (defaults to build-in markdown template)
+        #[clap(short = 't', long)]
+        template: Option<String>,
+
+        /// The defaults file to use for missing values (defaults to empty)
+        #[clap(short = 'd', long)]
+        defaults: Option<String>,
+    },
+
     /// Generate shell completion
     Completion {
         /// Shell to generate completion for
