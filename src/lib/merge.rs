@@ -1,8 +1,8 @@
 //#[macro_use]
 //extern crate serde_json;
 use std::fs;
-
-use serde_json::{Value, Error};
+use serde_json::Value;
+use anyhow::{bail, Result};
 
 
 /* fn merge(a: &Value, b: &Value) -> Value {
@@ -25,22 +25,24 @@ use serde_json::{Value, Error};
  */
 
 
-pub fn from_paths(sources: Vec<String>) -> Result<Value, Error> {
+pub fn from_paths(sources: Vec<String>) -> Result<Value> {
     let mut modelcards = Vec::new();
     for source in sources {
-        if let Ok(modelcard) = fs::read_to_string(&source) {
-            modelcards.push(modelcard);
+        let result = fs::read_to_string(&source);
+        if result.is_err() {
+            bail!("Could not read source {}. Error: {:?}", source, result.err().unwrap());
         }
+        modelcards.push(result.unwrap());
     }
     from_strings(modelcards)
 }
  
-pub fn from_strings(strings: Vec<String>) -> Result<Value, Error> {
+pub fn from_strings(strings: Vec<String>) -> Result<Value> {
     let mut result = Value::Object(serde_json::Map::new());
     for string in strings {
         match serde_json::from_str(&string) {
             Ok(json) => merge(&mut result, json),
-            Err(e) => return Err(e),
+            Err(e) => bail!("Invalid json:\n{string}\n\nError: {:?}", e),
         }
     }
     Ok(result)

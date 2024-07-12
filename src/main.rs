@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{path::PathBuf};
 
 use cli::{Cli, Command};
 use settings::Settings;
@@ -33,20 +33,28 @@ fn main() {
         },
         Command::Validate { sources, schema} => {
             log::debug!("Validate data={:?}, schema={:?}", sources, schema);
-            if cmd::validate_modelcard(sources, schema) {
-                console::success_exit("Modelcard is valid!");
+            let result = cmd::validate_modelcard(sources, schema);
+            if result.is_ok() {
+                if result.unwrap() {
+                    console::success_exit("Modelcard is valid!");
+                } else {
+                    console::success_exit("Modelcard is not valid!");
+                }
             } else {
-                console::success_exit("Modelcard is not valid!");
-                //console::error_exit("Modelcard is not valid!", None);
+                console::error_exit("Could not validate modelcard!", result.err());
             }
         },
         Command::Render { sources, template} => {
             log::debug!("Render data={:?}, template={:?}", sources, template);
-            if cmd::render_modelcard(sources, template) {
-                console::success_exit("Modelcard successfully rendered!");
+            let result = cmd::render_modelcard(sources, template);
+            if result.is_ok() {
+                if result.unwrap() {
+                    console::success_exit("Modelcard successfully rendered!");
+                } else {
+                    console::success_exit("Could not render modelcard!");
+                }
             } else {
-                console::success_exit("Could not render modelcard!");
-                //console::error_exit("Could not render modelcard!", None);
+                console::error_exit("Could not render modelcard!", result.err());
             }
         },
         Command::Init { name, force } => {

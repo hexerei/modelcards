@@ -10,12 +10,6 @@ pub fn merge_modelcards(sources: Vec<String>, target: Option<String>) -> Result<
         merged = fs::read_to_string(sources[0].clone())?;
     } else {
         let json_result = modelcards::merge::from_paths(sources)?;
-        // let mut modelcards = Vec::new();
-        // for source in sources {
-        //     let modelcard = fs::read_to_string(source)?;
-        //     modelcards.push(modelcard);
-        // }
-        // let json_result = modelcards::merge::from_strings(modelcards)?;
         if json_result.is_object() {
             merged = serde_json::to_string_pretty(&json_result)?;
         } else {
