@@ -19,18 +19,30 @@ pub fn validate_modelcard(sources: Vec<String>, schema_file: Option<String>) -> 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs::File;
-    use std::io::Write;
-    use std::env::temp_dir;
     use modelcards::utils::create_file;
+    use std::{
+        env::temp_dir,
+        fs::{canonicalize, create_dir, remove_dir_all},
+        path::{Path, PathBuf}
+    };
+
+    fn get_temp_dir(path: &str, create: bool) -> PathBuf {
+        let mut dir = temp_dir();
+        dir.push(path);
+        if dir.exists() {
+            remove_dir_all(&dir).expect("Could not free test directory");
+        }
+        if create {
+            create_dir(&dir).expect("Could not create test directory");
+        }
+        dir
+    }
 
     #[test]
     fn test_validate_modelcard_with_valid_data_and_no_schema() -> Result<()> {
-        let temp_dir = temp_dir();
+        let temp_dir = get_temp_dir("mc_valid_data_no_schema", true);
         let modelcard_path = temp_dir.join("modelcard.json");
-        //let mut file = File::create(&modelcard_path)?;
         let content = modelcards::assets::schema::get_sample();
-        //writeln!(file, "{content}")?;
         create_file(&modelcard_path, &content)?;
 
         let sources = vec![modelcard_path.to_str().unwrap().to_string()];
@@ -42,10 +54,8 @@ mod tests {
 
     #[test]
     fn test_validate_modelcard_with_invalid_data() -> Result<()> {
-        let temp_dir = temp_dir();
+        let temp_dir = get_temp_dir("mc_invalid_data", true);
         let modelcard_path = temp_dir.join("invalid_modelcard.json");
-        //let mut file = File::create(&modelcard_path)?;
-        //writeln!(file, r#"{{"invalid": "data"}}"#)?;
         create_file(&modelcard_path, r#"{{"invalid": "data"}}"#)?;
 
         let sources = vec![modelcard_path.to_str().unwrap().to_string()];
@@ -55,24 +65,20 @@ mod tests {
         Ok(())
     }
 
-    // #[test]
-    // fn test_validate_modelcard_with_valid_data_and_custom_schema() -> Result<()> {
-    //     let temp_dir = temp_dir();
-    //     let modelcard_path = temp_dir.join("modelcard.json");
-    //     let schema_path = temp_dir.join("schema.json");
-    //     // let mut modelcard_file = File::create(&modelcard_path)?;
-    //     // let mut schema_file = File::create(&schema_path)?;
-    //     // writeln!(modelcard_file, r#"{{"name": "Test Model", "description": "A test model for validation."}}"#)?;
-    //     // writeln!(schema_file, r#"{{"type": "object", "properties": {{"name": {{"type": "string"}}, "description": {{"type": "string"}}}}, "required": ["name", "description"]}}"#)?;
-    //     create_file(&modelcard_path, r#"{"name": "Test Model", "description": "A test model for validation."}"#).expect("Could not create modelcard file.");
-    //     create_file(&schema_path, r#"{"type": "object", "properties": {{"name": {{"type": "string"}}, "description": {{"type": "string"}}}}, "required": ["name", "description"]}"#).expect("Could not create schema file.");
+    #[test]
+    fn test_validate_modelcard_with_valid_data_and_custom_schema() -> Result<()> {
+        let temp_dir = get_temp_dir("mc_valid_data_custom_schema", true);
+        let modelcard_path = temp_dir.join("modelcard.json");
+        let schema_path = temp_dir.join("schema.json");
+        create_file(&modelcard_path, r#"{"name": "Test Model", "description": "A test model for validation."}"#).expect("Could not create modelcard file.");
+        create_file(&schema_path, r#"{"type": "object", "properties": {"name": {"type": "string"}, "description": {"type": "string"}}, "required": ["name", "description"]}"#).expect("Could not create schema file.");
 
-    //     let sources = vec![modelcard_path.to_str().unwrap().to_string()];
-    //     let result = validate_modelcard(sources, Some(schema_path.to_str().unwrap().to_string()))?;
+        let sources = vec![modelcard_path.to_str().unwrap().to_string()];
+        let result = validate_modelcard(sources, Some(schema_path.to_str().unwrap().to_string()))?;
 
-    //     assert!(result);
-    //     Ok(())
-    // }
+        assert!(result);
+        Ok(())
+    }
 
     #[test]
     fn test_validate_modelcard_fails_with_nonexistent_source() {
@@ -84,10 +90,8 @@ mod tests {
 
     #[test]
     fn test_validate_modelcard_fails_with_nonexistent_schema() -> Result<()> {
-        let temp_dir = temp_dir();
+        let temp_dir = get_temp_dir("mc_valid_data_nofile_schema", true);
         let modelcard_path = temp_dir.join("modelcard.json");
-        // let mut file = File::create(&modelcard_path).unwrap();
-        // writeln!(file, r#"{{"name": "Test Model", "description": "A test model for validation."}}"#).unwrap();
         create_file(&modelcard_path, r#"{"name": "Test Model", "description": "A test model for validation."}"#)?;
 
         let sources = vec![modelcard_path.to_str().unwrap().to_string()];
