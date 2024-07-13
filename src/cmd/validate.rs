@@ -22,8 +22,8 @@ mod tests {
     use modelcards::utils::create_file;
     use std::{
         env::temp_dir,
-        fs::{canonicalize, create_dir, remove_dir_all},
-        path::{Path, PathBuf}
+        fs::{create_dir, remove_dir_all},
+        path::PathBuf
     };
 
     fn get_temp_dir(path: &str, create: bool) -> PathBuf {
