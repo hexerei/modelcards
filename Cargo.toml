@@ -9,6 +9,7 @@ description = "A fast modelcard generator with built-in templates"
 homepage = "https://www.hexerei.net"
 repository = "https://github.com/hexerei/modelcards"
 keywords = ["modelcard", "generator", "model", "ai", "ml", "governance"]
+categories = ["command-line-utilities"]
 
 include = ["src/**/*", "LICENSE", "README.md"]
 
