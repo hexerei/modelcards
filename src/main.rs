@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{path::PathBuf};
 
 use cli::{Cli, Command};
 use settings::Settings;
@@ -24,6 +24,39 @@ fn main() {
 
 
     match cli.command {
+        Command::Merge { sources, target } => {
+            log::debug!("Merge sources={:?}, target={:?}", sources, target);
+            if let Err(e) = cmd::merge_modelcards(sources, target) {
+                console::error_exit("Could not merge modelcards", Some(e));
+            }
+            console::success_exit("Modelcards successfully merged!");
+        },
+        Command::Validate { sources, schema} => {
+            log::debug!("Validate data={:?}, schema={:?}", sources, schema);
+            let result = cmd::validate_modelcard(sources, schema);
+            if result.is_ok() {
+                if result.unwrap() {
+                    console::success_exit("Modelcard is valid!");
+                } else {
+                    console::success_exit("Modelcard is not valid!");
+                }
+            } else {
+                console::error_exit("Could not validate modelcard!", result.err());
+            }
+        },
+        Command::Render { sources, template} => {
+            log::debug!("Render data={:?}, template={:?}", sources, template);
+            let result = cmd::render_modelcard(sources, template);
+            if result.is_ok() {
+                if result.unwrap() {
+                    console::success_exit("Modelcard successfully rendered!");
+                } else {
+                    console::success_exit("Could not render modelcard!");
+                }
+            } else {
+                console::error_exit("Could not render modelcard!", result.err());
+            }
+        },
         Command::Init { name, force } => {
             if let Err(e) = cmd::create_new_project(&name, force) {
                 console::error_exit("Could not create project", Some(e));

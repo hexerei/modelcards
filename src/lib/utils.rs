@@ -30,8 +30,8 @@ pub fn create_file(path: &Path, content: &str) -> Result<()> {
 pub fn load_json_file(file_path: &Path) -> Result<serde_json::Value> {
     let mut file = File::open(file_path).with_context(|| format!("Failed to open file {}", file_path.display()))?;
         let mut file_string = String::new();
-        file.read_to_string(&mut file_string).unwrap();
-        Ok(serde_json::from_str(&file_string).unwrap())
+        file.read_to_string(&mut file_string)?;
+        Ok(serde_json::from_str(&file_string)?)
 }
 
 pub fn is_directory_empty(path: &Path, allow_hidden: bool) -> Result<bool> {

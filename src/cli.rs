@@ -57,6 +57,39 @@ pub enum Command {
         source: Option<String>,
     },
 
+    /// Validate the modelcard data file against the schema
+    Validate {
+        /// The source modelcard data file to be verified
+        #[clap(value_delimiter = ' ', num_args = 1..)]
+        sources: Vec<String>,
+
+        /// The schema file to validate against (defaults to build-in schema)
+        #[clap(short = 's', long)]
+        schema: Option<String>,
+    },
+
+    /// Render the modelcard using template
+    Render {
+        /// The source modelcard data file to be verified
+        #[clap(value_delimiter = ' ', num_args = 1..)]
+        sources: Vec<String>,
+
+        /// The jinjia template file to use (defaults to build-in markdown template)
+        #[clap(short = 't', long)]
+        template: Option<String>,
+    },
+
+    /// Merge multiple modelcard data files into one
+    Merge {
+        /// The source modelcard data files to be merged
+        #[clap(value_delimiter = ' ', num_args = 1..)]
+        sources: Vec<String>,
+
+        /// The output file to write the merged data to
+        #[clap(short = 'o', long)]
+        target: Option<String>,
+    },
+
     /// Generate shell completion
     Completion {
         /// Shell to generate completion for

@@ -1,6 +1,7 @@
 use std::path::Path;
-use crate::utils::load_json_file;
+use crate::{assets, utils::load_json_file};
 use anyhow::{bail, Result};
+use serde_json::Value;
 use valico::json_schema::scope;
 
 pub fn check_against_schema(path: &Path, modelcard: &Path) -> Result<bool> {
@@ -17,6 +18,19 @@ pub fn check_against_schema(path: &Path, modelcard: &Path) -> Result<bool> {
     };
     let schema_v7 = load_json_file(&schema_file)?;
     let modelcard = load_json_file(&modelcard)?;
+
+    validate_against_schema(modelcard, Some(schema_v7))
+}
+
+pub fn validate_against_schema(modelcard: Value, schema: Option<Value>) -> Result<bool> {
+
+    let schema_v7 = match schema {
+        Some(s) => s,
+        None => {
+            serde_json::from_str(&assets::schema::get_schema()).unwrap()
+        }
+    };
+
     let mut scope = scope::Scope::new();
     //let schema = scope.compile_and_return(schema_v7, true).ok().unwrap();
     match scope.compile_and_return(schema_v7, true) {
