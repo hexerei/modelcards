@@ -1,9 +1,52 @@
+//! # Validation
+//! 
+//! The `validate` module provides functions to validate a model card against a schema.
+//! 
+//! ## Functions
+//! 
+//! The module provides the following functions:
+//! 
+//! - `check_against_schema` - Check a model card against a schema.
+//! - `validate_against_schema` - Validate a model card against a schema.
+//! 
+//! ## Errors
+//! 
+//! The functions will return an error if the model card is not valid against the schema.
+//! The [`anyhow`] crate is used for error handling.
+//! 
+
 use std::path::Path;
 use crate::{assets, utils::load_json_file};
 use anyhow::{bail, Result};
 use serde_json::Value;
 use valico::json_schema::scope;
 
+/// Check a model card against a schema.
+/// 
+/// The function takes a path to a model card and a path to a schema and checks the model card against the schema.
+/// 
+/// ## Arguments
+/// 
+/// - `path` - A path to a model card or a directory containing a model card.
+/// - `modelcard` - A path to a schema file.
+/// 
+/// ## Returns
+/// 
+/// The function returns a `Result` with a boolean indicating whether the model card is valid against the schema.
+/// 
+/// ## Errors
+/// 
+/// The function will return an error if the model card is not valid against the schema.
+/// 
+/// ## Example
+/// 
+/// ```rust
+/// use crate::validate::check_against_schema;
+/// 
+/// let result = check_against_schema("tests/schemas/my_schema.json", "tests/data/sample.json").unwrap();
+/// assert_eq!(result, true);
+/// ```
+/// 
 pub fn check_against_schema(path: &Path, modelcard: &Path) -> Result<bool> {
 
     if !path.exists() {
@@ -22,6 +65,49 @@ pub fn check_against_schema(path: &Path, modelcard: &Path) -> Result<bool> {
     validate_against_schema(modelcard, Some(schema_v7))
 }
 
+/// Validate a model card against a schema.
+/// 
+/// The function takes a model card and a schema and validates the model card against the schema.
+/// 
+/// ## Arguments
+/// 
+/// - `modelcard` - A JSON object representing the model card.
+/// - `schema` - A JSON object representing the schema.
+/// 
+/// ## Returns
+/// 
+/// The function returns a `Result` with a boolean indicating whether the model card is valid against the schema.
+/// 
+/// ## Errors
+/// 
+/// The function will return an error if the model card is not valid against the schema.
+/// 
+/// ## Example
+/// 
+/// ```rust
+/// use serde_json::json;
+/// use crate::validate::validate_against_schema;
+/// 
+/// let modelcard = json!({
+///     "name": "Model Name",
+///     "schema_version": "0.0.2"
+/// });
+/// let schema = json!({
+///     "type": "object",
+///     "properties": {
+///         "name": {
+///             "type": "string"
+///         },
+///         "schema_version": {
+///             "type": "string"
+///         }
+///     },
+///     "required": ["name", "schema_version"]
+/// });
+/// let result = validate_against_schema(modelcard, schema).unwrap();
+/// assert_eq!(result, true);
+/// ```
+/// 
 pub fn validate_against_schema(modelcard: Value, schema: Option<Value>) -> Result<bool> {
 
     let schema_v7 = match schema {

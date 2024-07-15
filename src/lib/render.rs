@@ -1,3 +1,21 @@
+//! # Render
+//! 
+//! The `render` module provides functions to render Jinja templates with JSON data.
+//! 
+//! ## Functions
+//! 
+//! The module provides the following functions:
+//! 
+//! - `render_template(template: &Path, data: &Path) -> Result<String>` - Render a template with a data file to String.
+//! - `render_template_valid(template: &Path, data: &Path, schema: &Path) -> Result<String>` - Render a template with a data file to String and validate against a schema.
+//! - `render_value_to_template(data: Value, template: Option<&Path>) -> Result<String>` - Render a template with a JSON object.
+//! 
+//! ## Errors
+//! 
+//! The functions will return an error if the template, data, or schema file could not be found or if the JSON object does not validate against the schema.
+//! The anyhow crate is used for error handling.
+//! 
+
 use minijinja::{Environment, path_loader};
 use serde_json::Value;
 
@@ -9,6 +27,34 @@ use crate::{
 use anyhow::{bail, Result};
 
 /// Render a template with a data file to String
+/// 
+/// The function takes a JSON file path and a template file and renders the template with the JSON object.
+/// 
+/// ## Arguments
+/// 
+/// - `template` - A path to a Jinja template file.
+/// - `data` - A path to a JSON file to be rendered.
+/// 
+/// ## Returns
+/// 
+/// The function returns a `Result` with the rendered template as a `String` or an error if the template could not be rendered.
+/// 
+/// ## Errors
+/// 
+/// The function will return an error if the template or data file could not be found.
+/// 
+/// ## Example
+/// 
+/// ```rust
+/// use std::path::Path;
+/// use crate::render::render_template;
+/// 
+/// let template = Path::new("template.md.jinja"); // content: "Hello, {{ name }}!"
+/// let data = Path::new("data.json"); // content: {"name": "World"}
+/// let result = render_template(&template, &data).unwrap();
+/// assert_eq!(result, "Hello, World!");
+/// ```
+/// 
 pub fn render_template(template: &Path, data: &Path) -> Result<String> {
 
     // // check if template exists
@@ -48,6 +94,36 @@ pub fn render_template(template: &Path, data: &Path) -> Result<String> {
 }
 
 /// Render a template with a data file to String and validate against a schema
+/// 
+/// The function takes a JSON file path, a template file, and a schema file and renders the template with the JSON object if the JSON object validates against the given schema.
+/// 
+/// ## Arguments
+/// 
+/// - `template` - A path to a Jinja template file.
+/// - `data` - A path to a JSON file to be rendered.
+/// - `schema` - A path to a JSON schema file.
+/// 
+/// ## Returns
+/// 
+/// The function returns a `Result` with the rendered template as a `String` or an error if the template could not be rendered or the JSON object does not validate against the schema.
+/// 
+/// ## Errors
+/// 
+/// The function will return an error if the template, data, or schema file could not be found or if the JSON object does not validate against the schema.
+/// 
+/// ## Example
+/// 
+/// ```rust
+/// use std::path::Path;
+/// use crate::render::render_template_valid;
+/// 
+/// let template = Path::new("template.md.jinja"); // content: "Hello, {{ name }}!"
+/// let data = Path::new("data.json"); // content: {"name": "World"}
+/// let schema = Path::new("schema.json"); // content: {"type": "object", "properties": {"name": {"type": "string"}}}
+/// let result = render_template_valid(&template, &data, &schema).unwrap();
+/// assert_eq!(result, "Hello, World!");
+/// ```
+/// 
 pub fn render_template_valid(template: &Path, data: &Path, schema: &Path) -> Result<String> {
 
     // // check if template exists
@@ -97,6 +173,38 @@ pub fn render_template_valid(template: &Path, data: &Path, schema: &Path) -> Res
 }
 
 /// Render a template with a data file to String
+/// 
+/// The function takes a JSON object and a template file and renders the template with the JSON object.
+/// If no template is provided, the default template will be used (currently Google model card toolkit markdown format).
+/// 
+/// ## Arguments
+/// 
+/// - `data` - A JSON object to be rendered.
+/// - `template` - An optional path to a template file. If not provided, the default template will be used.
+/// 
+/// ## Returns
+/// 
+/// The function returns a `Result` with the rendered template as a `String` or an error if the template could not be rendered.
+/// 
+/// ## Errors
+/// 
+/// The function will return an error if the template could not be rendered.
+/// 
+/// ## Example
+/// 
+/// ```rust
+/// use std::path::Path;
+/// use serde_json::json;
+/// use crate::render::render_value_to_template;
+/// 
+/// let data = json!({
+///    "name": "World"
+/// });
+/// let jinja_file = Path::new("template.md.jinja"); // content: "Hello, {{ name }}!"
+/// let result = render_value_to_template(data, None).unwrap();
+/// assert_eq!(result, "Hello, World!");
+/// ```
+/// 
 pub fn render_value_to_template(data: Value, template: Option<&Path>) -> Result<String> {
 
     let template_name: &str;
@@ -137,6 +245,7 @@ pub fn render_value_to_template(data: Value, template: Option<&Path>) -> Result<
 
 
 #[allow(dead_code)]
+#[doc(hidden)]
 fn create_env(path: &Path) -> Environment<'static> {
     //TODO loader needs to get path from config or cli
     let mut env = Environment::new();
