@@ -1,6 +1,5 @@
 use std::include_str;
 
-pub fn get_default() -> String {
-    let template = include_str!("default.toml");
-    String::from(template)
+pub fn get_default() -> &'static str {
+    include_str!("default.toml")
 }

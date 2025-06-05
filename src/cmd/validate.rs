@@ -8,7 +8,7 @@ pub fn validate_modelcard(sources: Vec<String>, schema_file: Option<String>) -> 
     if let Ok(modelcard) = result {
         let schema = match schema_file {
             Some(file) => load_json_file(Path::new(&file))?,
-            None => serde_json::from_str(&modelcards::assets::schema::get_schema())?
+            None => serde_json::from_str(modelcards::assets::schema::get_schema())?
         };
         return modelcards::validate::validate_against_schema(modelcard, Some(schema));
     }

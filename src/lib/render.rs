@@ -213,7 +213,7 @@ pub fn render_value_to_template(data: Value, template: Option<&Path>) -> Result<
 
     if template.is_none() {
         template_name = "default_md";
-        template_content = crate::assets::templates::get_md();
+        template_content = crate::assets::templates::get_md().to_string();
     } else {
         let template = template.unwrap();
         // check if template exists

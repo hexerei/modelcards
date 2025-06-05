@@ -50,7 +50,7 @@ impl Settings {
 
         let s = Config::builder()
             // Start off by merging in the "default" configuration file
-            .add_source(File::from_str(get_default().as_str(), config::FileFormat::Toml))
+            .add_source(File::from_str(get_default(), config::FileFormat::Toml))
             // Add in the current environment file
             // Default to 'development' env
             // Note that this file is _optional_

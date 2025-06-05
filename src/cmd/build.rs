@@ -110,7 +110,7 @@ mod tests {
     fn build_project_with_custom_data() {
         let path = get_temp_dir("test_build_project_with_custom_data", true);
         create_new_project(path.to_str().expect("Invalid path"), false).expect("Could not populate test directory");
-        create_file(path.join("modelcard.json").as_path(), &schema::get_sample()).expect("Could not create modelcard data file");
+        create_file(path.join("modelcard.json").as_path(), schema::get_sample()).expect("Could not create modelcard data file");
         build_project(&path, Some("modelcard.json".to_string()), None, false).expect("Could not build project");
         assert!(path.join("cards/modelcard.md").exists());
     }

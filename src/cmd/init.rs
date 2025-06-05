@@ -21,7 +21,7 @@ pub fn create_new_project(name: &str, force: bool) -> Result<()> {
     }
     println!("Welcome to modelcards!");
 
-    populate(path, config::get_default().as_str())?;
+    populate(path, config::get_default())?;
     println!();
     println!("Done! Your project was created in {}", strip_unc(&canonicalize(path)?));
     println!();
@@ -59,12 +59,12 @@ fn populate(path: &Path, config: &str) -> Result<()> {
         create_dir(path)?;
     }
     create_file(&path.join("config.toml"), config)?;
-    create_file(&path.join("sample.json"), &schema::get_sample())?;
+    create_file(&path.join("sample.json"), schema::get_sample())?;
     create_dir(path.join("schema"))?;
-    create_file(&path.join("schema/modelcard.schema.json"), &schema::get_schema())?;
+    create_file(&path.join("schema/modelcard.schema.json"), schema::get_schema())?;
     create_dir(path.join("templates"))?;
-    create_file(&path.join("templates/modelcard.md.jinja"), &templates::get_md())?;
-    create_file(&path.join("templates/modelcard.html.jinja"), &templates::get_html())?;
+    create_file(&path.join("templates/modelcard.md.jinja"), templates::get_md())?;
+    create_file(&path.join("templates/modelcard.html.jinja"), templates::get_html())?;
 
     Ok(())
 }

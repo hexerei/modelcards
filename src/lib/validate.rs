@@ -116,7 +116,7 @@ pub fn validate_against_schema(modelcard: Value, schema: Option<Value>) -> Resul
     let schema_v7 = match schema {
         Some(s) => s,
         None => {
-            serde_json::from_str(&assets::schema::get_schema())
+            serde_json::from_str(assets::schema::get_schema())
                 .expect("Failed to parse default schema")
         }
     };
@@ -180,9 +180,9 @@ mod tests {
     }
 
     fn populate_modelcards_dir(path: &Path) -> Result<()> {
-        create_file(&path.join("sample.json"), &schema::get_sample())?;
+        create_file(&path.join("sample.json"), schema::get_sample())?;
         create_dir(path.join("schema"))?;
-        create_file(&path.join("schema/modelcard.schema.json"), &schema::get_schema())?;
+        create_file(&path.join("schema/modelcard.schema.json"), schema::get_schema())?;
         Ok(())
     }
 

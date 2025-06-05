@@ -36,9 +36,9 @@ mod tests {
     }
 
     fn populate_modelcards_dir(path: &Path) -> Result<()> {
-        create_file(&path.join("sample.json"), &schema::get_sample())?;
+        create_file(&path.join("sample.json"), schema::get_sample())?;
         create_dir(path.join("schema"))?;
-        create_file(&path.join("schema/modelcard.schema.json"), &schema::get_schema())?;
+        create_file(&path.join("schema/modelcard.schema.json"), schema::get_schema())?;
         Ok(())
     }
 

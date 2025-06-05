@@ -10,10 +10,10 @@
 - [ ] Add panic handler for better error reporting in release builds
 
 ### 2. Performance Optimizations
-- [ ] Fix unnecessary string allocations in asset modules
-  - [ ] Return `&'static str` directly from `include_str!` macros
-  - [ ] Remove `String::from()` in `assets/schema/mod.rs`
-  - [ ] Remove `String::from()` in `assets/templates/mod.rs`
+- [x] Fix unnecessary string allocations in asset modules ✅
+  - [x] Return `&'static str` directly from `include_str!` macros ✅
+  - [x] Remove `String::from()` in `assets/schema/mod.rs` ✅
+  - [x] Remove `String::from()` in `assets/templates/mod.rs` ✅
 - [ ] Use `Cow<str>` for path operations to avoid allocations
 - [ ] Add caching for frequently accessed files (schemas, templates)
 - [ ] Profile application to identify actual bottlenecks
@@ -108,10 +108,8 @@
 
 ## 🎯 Quick Wins
 
-1. **String allocation fix**: ~1 hour, immediate performance improvement
-2. **Remove unwraps**: ~2-3 hours, prevents production panics
-3. **Add release profile**: ~5 minutes, significant binary size/speed improvement
-4. **Fix duplicate dependencies**: ~30 minutes, cleaner dependency tree
+1. **Add release profile**: ~5 minutes, significant binary size/speed improvement
+2. **Fix duplicate dependencies**: ~30 minutes, cleaner dependency tree
 
 ## 📝 Notes
 
