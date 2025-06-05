@@ -27,15 +27,8 @@
 - [ ] Update all dependencies to latest versions
 
 ### 4. Build Configuration
-- [ ] Add release profile optimization to `Cargo.toml`:
-  ```toml
-  [profile.release]
-  opt-level = 3
-  lto = true
-  codegen-units = 1
-  strip = true
-  ```
-- [ ] Add `Cargo.lock` to version control
+- [x] Add release profile optimization to `Cargo.toml`
+- [x] Add `Cargo.lock` to version control
 - [ ] Consider static linking for easier distribution
 
 ## 🟡 Medium Priority
@@ -108,8 +101,7 @@
 
 ## 🎯 Quick Wins
 
-1. **Add release profile**: ~5 minutes, significant binary size/speed improvement
-2. **Fix duplicate dependencies**: ~30 minutes, cleaner dependency tree
+1. **Fix duplicate dependencies**: ~30 minutes, cleaner dependency tree
 
 ## 📝 Notes
 
