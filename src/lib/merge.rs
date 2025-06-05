@@ -36,7 +36,7 @@
 
 use std::fs;
 use serde_json::Value;
-use anyhow::{bail, Result};
+use anyhow::{bail, Context, Result};
 
 
 /* fn merge(a: &Value, b: &Value) -> Value {
@@ -96,13 +96,13 @@ use anyhow::{bail, Result};
  pub fn from_paths(sources: Vec<String>) -> Result<Value> {
     let mut modelcards = Vec::new();
     for source in sources {
-        let result = fs::read_to_string(&source);
-        if result.is_err() {
-            bail!("Could not read source {}. Error: {:?}", source, result.err().unwrap());
+        match fs::read_to_string(&source) {
+            Ok(content) => modelcards.push(content),
+            Err(e) => bail!("Could not read source '{}': {}", source, e),
         }
-        modelcards.push(result.unwrap());
     }
     from_strings(modelcards)
+        .context("Failed to merge modelcard files")
 }
  
 /// Merge multiple JSON strings into a single JSON object.
@@ -213,7 +213,7 @@ pub fn from_strings(strings: Vec<String>) -> Result<Value> {
 fn merge(a: &mut Value, b: Value) {
     match (a, b) {
         (a @ &mut Value::Object(_), Value::Object(b)) => {
-            let a = a.as_object_mut().unwrap();
+            let a = a.as_object_mut().expect("Failed to get mutable object reference");
             for (k, v) in b {
                 merge(a.entry(k).or_insert(Value::Null), v);
             }

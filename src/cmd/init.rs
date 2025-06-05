@@ -23,7 +23,7 @@ pub fn create_new_project(name: &str, force: bool) -> Result<()> {
 
     populate(path, config::get_default().as_str())?;
     println!();
-    println!("Done! Your project was created in {}", strip_unc(&canonicalize(path).unwrap()));
+    println!("Done! Your project was created in {}", strip_unc(&canonicalize(path)?));
     println!();
     println!("Get started by moving into the directory and building your card: modelcads build");
     Ok(())
@@ -107,7 +107,7 @@ mod tests {
         let dir = get_temp_dir("test_empty_dir", true);
         let allowed = is_directory_empty(&dir, false)
             .expect("An error happened reading the directory's contents");
-        remove_dir(&dir).unwrap();
+        remove_dir(&dir).expect("Failed to remove directory");
         assert!(allowed);
     }
 
@@ -116,11 +116,11 @@ mod tests {
         let dir = get_temp_dir("test_non_empty_dir", true);
         let mut content = dir.clone();
         content.push("content");
-        create_dir(&content).unwrap();
+        create_dir(&content).expect("Failed to create content directory");
         let allowed = is_directory_empty(&dir, false)
             .expect("An error happened reading the directory's contents");
-        remove_dir(&content).unwrap();
-        remove_dir(&dir).unwrap();
+        remove_dir(&content).expect("Failed to remove content directory");
+        remove_dir(&dir).expect("Failed to remove directory");
         assert!(!allowed);
     }
 
@@ -129,11 +129,11 @@ mod tests {
         let dir = get_temp_dir("test_dir_with_hidden", true);
         let mut git = dir.clone();
         git.push(".git");
-        create_dir(&git).unwrap();
+        create_dir(&git).expect("Failed to create git directory");
         let allowed = is_directory_empty(&dir, true)
             .expect("An error happened reading the directory's contents");
-        remove_dir(&git).unwrap();
-        remove_dir(&dir).unwrap();
+        remove_dir(&git).expect("Failed to remove git directory");
+        remove_dir(&dir).expect("Failed to remove directory");
         assert!(allowed);
     }
 
@@ -142,7 +142,7 @@ mod tests {
         let dir = get_temp_dir("test_populate_existing_dir", true);
         populate(&dir, "").expect("Could not populate modelcards directories");
         check_modelcards_dir(&dir);
-        remove_dir_all(&dir).unwrap();
+        remove_dir_all(&dir).expect("Failed to remove directory");
     }
 
     #[test]
@@ -150,7 +150,7 @@ mod tests {
         let dir = get_temp_dir("test_non_existing_dir", false);
         populate(&dir, "").expect("Could not populate modelcards directories");
         check_modelcards_dir(&dir);
-        remove_dir_all(&dir).unwrap();
+        remove_dir_all(&dir).expect("Failed to remove directory");
     }
 
 }

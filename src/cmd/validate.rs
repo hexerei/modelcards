@@ -6,10 +6,9 @@ use anyhow::{bail, Result};
 pub fn validate_modelcard(sources: Vec<String>, schema_file: Option<String>) -> Result<bool> {
     let result = modelcards::merge::from_paths(sources);
     if let Ok(modelcard) = result {
-        let schema = if schema_file.is_some() {
-            load_json_file(Path::new(&schema_file.unwrap()))?
-        } else {
-            serde_json::from_str(&modelcards::assets::schema::get_schema())?
+        let schema = match schema_file {
+            Some(file) => load_json_file(Path::new(&file))?,
+            None => serde_json::from_str(&modelcards::assets::schema::get_schema())?
         };
         return modelcards::validate::validate_against_schema(modelcard, Some(schema));
     }
@@ -45,7 +44,7 @@ mod tests {
         let content = modelcards::assets::schema::get_sample();
         create_file(&modelcard_path, &content)?;
 
-        let sources = vec![modelcard_path.to_str().unwrap().to_string()];
+        let sources = vec![modelcard_path.to_str().expect("Invalid path").to_string()];
         let result = validate_modelcard(sources, None)?;
 
         assert!(result);
@@ -58,7 +57,7 @@ mod tests {
         let modelcard_path = temp_dir.join("invalid_modelcard.json");
         create_file(&modelcard_path, r#"{{"invalid": "data"}}"#)?;
 
-        let sources = vec![modelcard_path.to_str().unwrap().to_string()];
+        let sources = vec![modelcard_path.to_str().expect("Invalid path").to_string()];
         let result = validate_modelcard(sources, None);
 
         assert!(result.is_err());
@@ -73,7 +72,7 @@ mod tests {
         create_file(&modelcard_path, r#"{"name": "Test Model", "description": "A test model for validation."}"#).expect("Could not create modelcard file.");
         create_file(&schema_path, r#"{"type": "object", "properties": {"name": {"type": "string"}, "description": {"type": "string"}}, "required": ["name", "description"]}"#).expect("Could not create schema file.");
 
-        let sources = vec![modelcard_path.to_str().unwrap().to_string()];
+        let sources = vec![modelcard_path.to_str().expect("Invalid path").to_string()];
         let result = validate_modelcard(sources, Some(schema_path.to_str().unwrap().to_string()))?;
 
         assert!(result);
@@ -94,7 +93,7 @@ mod tests {
         let modelcard_path = temp_dir.join("modelcard.json");
         create_file(&modelcard_path, r#"{"name": "Test Model", "description": "A test model for validation."}"#)?;
 
-        let sources = vec![modelcard_path.to_str().unwrap().to_string()];
+        let sources = vec![modelcard_path.to_str().expect("Invalid path").to_string()];
         let result = validate_modelcard(sources, Some("nonexistent_schema.json".to_string()));
 
         assert!(result.is_err());

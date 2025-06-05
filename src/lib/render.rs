@@ -24,7 +24,7 @@ use crate::{
     utils::console,
     validate::check_against_schema
 };
-use anyhow::{bail, Result};
+use anyhow::{bail, Context, Result};
 
 /// Render a template with a data file to String
 /// 
@@ -79,7 +79,8 @@ pub fn render_template(template: &Path, data: &Path) -> Result<String> {
     // env.add_template(template_name, template_content.as_str())?;
 
     // let template = env.get_template(template_name).unwrap();
-    let data = crate::utils::load_json_file(data)?;
+    let data = crate::utils::load_json_file(data)
+        .with_context(|| format!("Failed to load data file: {}", data.display()))?;
     // let tmp = template.render(&data);
 
     render_value_to_template(data, Some(template))
@@ -158,7 +159,8 @@ pub fn render_template_valid(template: &Path, data: &Path, schema: &Path) -> Res
     // env.add_template(template_name, template_content.as_str())?;
 
     // let template = env.get_template(template_name).unwrap();
-    let data = crate::utils::load_json_file(data)?;
+    let data = crate::utils::load_json_file(data)
+        .with_context(|| format!("Failed to load data file: {}", data.display()))?;
     // let tmp = template.render(&data);
 
     render_value_to_template(data, Some(template))
@@ -219,8 +221,12 @@ pub fn render_value_to_template(data: Value, template: Option<&Path>) -> Result<
             bail!("Template file does not exist at '{}'", template.to_string_lossy().to_string());
         }
 
-        template_name = template.file_name().unwrap_or(OsStr::new("modelcard.md.jinja")).to_str().unwrap();
-        template_content = read_to_string(template).unwrap();
+        template_name = template.file_name()
+            .unwrap_or(OsStr::new("modelcard.md.jinja"))
+            .to_str()
+            .unwrap_or("modelcard.md.jinja");
+        template_content = read_to_string(template)
+            .map_err(|e| anyhow::anyhow!("Failed to read template file: {}", e))?;
     }
 
     console::debug("Rendering template...");
@@ -230,16 +236,16 @@ pub fn render_value_to_template(data: Value, template: Option<&Path>) -> Result<
     let mut env = Environment::new();
     env.add_template(template_name, template_content.as_str())?;
 
-    let template = env.get_template(template_name).unwrap();
-    let tmp = template.render(&data);
-
-    if let Err(e) = tmp {
-        bail!("Could not render template: {:?}", e);
+    let template = env.get_template(template_name)
+        .map_err(|e| anyhow::anyhow!("Failed to get template: {}", e))?;
+    
+    match template.render(&data) {
+        Ok(rendered) => {
+            console::debug("Done!");
+            Ok(rendered)
+        },
+        Err(e) => bail!("Could not render template: {:?}", e),
     }
-
-    console::debug("Done!");
-
-    Ok(tmp.unwrap())
 }
 
 
@@ -305,7 +311,7 @@ mod tests {
 
         let result = render_template_valid(&template_path, &data_path, &schema_path);
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), "Hello, World!");
+        assert_eq!(result.expect("Failed to render template"), "Hello, World!");
     }
 
     #[test]
@@ -358,6 +364,6 @@ mod tests {
         let data = crate::utils::load_json_file(&data_path).unwrap();
         let result = render_value_to_template(data, Some(&template_path));
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), "Goodbye, World!");
+        assert_eq!(result.expect("Failed to render template"), "Goodbye, World!");
     }
 }

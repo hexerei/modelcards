@@ -116,7 +116,8 @@ pub fn validate_against_schema(modelcard: Value, schema: Option<Value>) -> Resul
     let schema_v7 = match schema {
         Some(s) => s,
         None => {
-            serde_json::from_str(&assets::schema::get_schema()).unwrap()
+            serde_json::from_str(&assets::schema::get_schema())
+                .expect("Failed to parse default schema")
         }
     };
 
@@ -129,8 +130,8 @@ pub fn validate_against_schema(modelcard: Value, schema: Option<Value>) -> Resul
                 let mut errors = vec![];
                 for e in vs.errors.into_iter() {
                     errors.push(format!("[{}] {}: {}", e.get_code(), e.get_path(), e.get_title()));
-                    if e.get_detail().is_some() {
-                        errors.push(format!("    {}", e.get_detail().unwrap()));
+                    if let Some(detail) = e.get_detail() {
+                        errors.push(format!("    {}", detail));
                     }
                     //TODO: add state errors from any_of and one_of
                 }

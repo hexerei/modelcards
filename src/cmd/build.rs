@@ -13,12 +13,12 @@ pub fn build_project(path: &Path, modelcard: Option<String>, target: Option<Stri
     }
 
     let modelcard = opt_get_path(modelcard, "sample.json", path)?;
-    let file_name = Path::new(modelcard.file_name().unwrap()).with_extension("md");
+    let file_name = Path::new(modelcard.file_name().ok_or_else(|| anyhow::anyhow!("Invalid modelcard path"))?).with_extension("md");
     //let target_file = opt_get_path(target, modelcard.file_name().unwrap().to_str().unwrap(), path.join("cards").as_path())?;
 
     // check if output directory exists and create it if not
     let target = target.unwrap_or_else(|| path.join("cards").join(&file_name).to_string_lossy().to_string());
-    let out_dir = Path::new(&target).parent().unwrap();
+    let out_dir = Path::new(&target).parent().ok_or_else(|| anyhow::anyhow!("Invalid target path"))?;
     if !out_dir.exists() {
         create_dir_all(out_dir)?;
     }
@@ -101,7 +101,7 @@ mod tests {
     #[test]
     fn build_project_with_defaults() {
         let path = get_temp_dir("test_build_project_with_defaults", true);
-        create_new_project(path.to_str().unwrap(), false).expect("Could not populate test directory");
+        create_new_project(path.to_str().expect("Invalid path"), false).expect("Could not populate test directory");
         build_project(&path, None, None, false).expect("Could not build project");
         assert!(path.join("cards/sample.md").exists());
     }
@@ -109,7 +109,7 @@ mod tests {
     #[test]
     fn build_project_with_custom_data() {
         let path = get_temp_dir("test_build_project_with_custom_data", true);
-        create_new_project(path.to_str().unwrap(), false).expect("Could not populate test directory");
+        create_new_project(path.to_str().expect("Invalid path"), false).expect("Could not populate test directory");
         create_file(path.join("modelcard.json").as_path(), &schema::get_sample()).expect("Could not create modelcard data file");
         build_project(&path, Some("modelcard.json".to_string()), None, false).expect("Could not build project");
         assert!(path.join("cards/modelcard.md").exists());

@@ -33,28 +33,18 @@ fn main() {
         },
         Command::Validate { sources, schema} => {
             log::debug!("Validate data={:?}, schema={:?}", sources, schema);
-            let result = cmd::validate_modelcard(sources, schema);
-            if result.is_ok() {
-                if result.unwrap() {
-                    console::success_exit("Modelcard is valid!");
-                } else {
-                    console::success_exit("Modelcard is not valid!");
-                }
-            } else {
-                console::error_exit("Could not validate modelcard!", result.err());
+            match cmd::validate_modelcard(sources, schema) {
+                Ok(true) => console::success_exit("Modelcard is valid!"),
+                Ok(false) => console::success_exit("Modelcard is not valid!"),
+                Err(e) => console::error_exit("Could not validate modelcard!", Some(e)),
             }
         },
         Command::Render { sources, template} => {
             log::debug!("Render data={:?}, template={:?}", sources, template);
-            let result = cmd::render_modelcard(sources, template);
-            if result.is_ok() {
-                if result.unwrap() {
-                    console::success_exit("Modelcard successfully rendered!");
-                } else {
-                    console::success_exit("Could not render modelcard!");
-                }
-            } else {
-                console::error_exit("Could not render modelcard!", result.err());
+            match cmd::render_modelcard(sources, template) {
+                Ok(true) => console::success_exit("Modelcard successfully rendered!"),
+                Ok(false) => console::success_exit("Could not render modelcard!"),
+                Err(e) => console::error_exit("Could not render modelcard!", Some(e)),
             }
         },
         Command::Init { name, force } => {

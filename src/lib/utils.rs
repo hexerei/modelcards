@@ -47,8 +47,12 @@ const LOCAL_UNC: &str = "\\\\?\\";
 /// ```
 /// 
 pub fn strip_unc(path: &Path) -> String {
-    let path_to_refine = path.to_str().unwrap();
-    path_to_refine.trim_start_matches(LOCAL_UNC).to_string()
+    let path_to_refine = path.to_str().unwrap_or("");
+    if path_to_refine.is_empty() {
+        path.to_string_lossy().trim_start_matches(LOCAL_UNC).to_string()
+    } else {
+        path_to_refine.trim_start_matches(LOCAL_UNC).to_string()
+    }
 }
 
 /// Creates a file with the specified content.
@@ -128,7 +132,7 @@ pub fn is_directory_empty(path: &Path, allow_hidden: bool) -> Result<bool> {
         if entries.any(|x| match x {
             Ok(file) => {
                 if allow_hidden {
-                    !file.file_name().to_str().expect("Could not convert filename to &str").starts_with('.')
+                    !file.file_name().to_str().unwrap_or("").starts_with('.')
                 } else {
                     true
                 }
@@ -294,17 +298,19 @@ mod tests {
     fn strip_unc_test() {
         let dir = get_temp_dir("test_strip_unc", true);
         if cfg!(target_os = "windows") {
-            let stripped_path = strip_unc(&canonicalize(Path::new(&dir)).unwrap());
-            assert!(same_file::is_same_file(Path::new(&stripped_path), &dir).unwrap());
+            let canonicalized = canonicalize(Path::new(&dir)).expect("Failed to canonicalize path");
+            let stripped_path = strip_unc(&canonicalized);
+            assert!(same_file::is_same_file(Path::new(&stripped_path), &dir).expect("Failed to compare files"));
             assert!(!stripped_path.starts_with(LOCAL_UNC), "The path was not stripped.");
         } else {
+            let canonicalized = canonicalize(Path::new(&dir)).expect("Failed to canonicalize path");
             assert_eq!(
-                strip_unc(&canonicalize(Path::new(&dir)).unwrap()),
-                canonicalize(Path::new(&dir)).unwrap().to_str().unwrap().to_string()
+                strip_unc(&canonicalized),
+                canonicalized.to_str().expect("Failed to convert path to str").to_string()
             );
         }
 
-        remove_dir_all(&dir).unwrap();
+        remove_dir_all(&dir).expect("Failed to remove test directory");
     }
 
     // If the following test fails it means that the canonicalize function is fixed and strip_unc
@@ -314,11 +320,11 @@ mod tests {
     #[cfg(target_os = "windows")]
     fn strip_unc_required_test() {
         let dir = get_temp_dir("test_strip_unc_required", true);
-        let canonicalized_path = canonicalize(Path::new(&dir)).unwrap();
-        assert!(same_file::is_same_file(Path::new(&canonicalized_path), &dir).unwrap());
-        assert!(canonicalized_path.to_str().unwrap().starts_with(LOCAL_UNC));
+        let canonicalized_path = canonicalize(Path::new(&dir)).expect("Failed to canonicalize path");
+        assert!(same_file::is_same_file(Path::new(&canonicalized_path), &dir).expect("Failed to compare files"));
+        assert!(canonicalized_path.to_str().expect("Failed to convert path to str").starts_with(LOCAL_UNC));
 
-        remove_dir_all(&dir).unwrap();
+        remove_dir_all(&dir).expect("Failed to remove test directory");
     }
 
     #[test]
@@ -327,6 +333,6 @@ mod tests {
         let file_path = dir.join("test_file.txt");
         create_file(&file_path, "test content").expect("Could not create file");
         assert!(file_path.exists());
-        remove_dir_all(&dir).unwrap();
+        remove_dir_all(&dir).expect("Failed to remove test directory");
     }
 }
