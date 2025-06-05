@@ -63,7 +63,7 @@ pub fn check_against_schema(path: &Path, modelcard: &Path) -> Result<bool> {
         path.to_path_buf()
     };
     let schema_v7 = load_json_file(&schema_file)?;
-    let modelcard = load_json_file(&modelcard)?;
+    let modelcard = load_json_file(modelcard)?;
 
     validate_against_schema(modelcard, Some(schema_v7))
 }

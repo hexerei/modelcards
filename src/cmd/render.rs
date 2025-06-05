@@ -10,14 +10,13 @@ pub fn render_modelcard(sources: Vec<String>, template_file: Option<String>) -> 
     console::info(format!("Rendering modelcard to {}.", target_file.to_string_lossy()).as_str());
 
     if let Ok(modelcard) = modelcards::merge::from_paths(sources) {
-        let result: Result<String>;
-        if template_file.is_none() {
-            result = modelcards::render::render_value_to_template(modelcard, None);
+        let result: Result<String> = if template_file.is_none() {
+            modelcards::render::render_value_to_template(modelcard, None)
         } else {
             let template_file = template_file.unwrap();
             let template_file = Path::new(&template_file);
-            result = modelcards::render::render_value_to_template(modelcard, Some(template_file));
-        }
+            modelcards::render::render_value_to_template(modelcard, Some(template_file))
+        };
         if let Ok(rendered) = result {
             modelcards::utils::create_file(target_file.as_path(), &rendered)?;
             return Ok(true);

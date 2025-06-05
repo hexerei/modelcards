@@ -55,7 +55,7 @@ impl Settings {
             // Default to 'development' env
             // Note that this file is _optional_
             .add_source(
-                File::with_name(&format!("{}", run_mode))
+                File::with_name(&run_mode.to_string())
                     .required(false),
             )
             // Add in a local configuration file
