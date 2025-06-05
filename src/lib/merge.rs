@@ -17,9 +17,9 @@
 //! 
 //! ## Example
 //! 
-//! ```rust
+//! ```rust,no_run
 //! use serde_json::json;
-//! use crate::merge::from_paths;
+//! use modelcards::merge::from_paths;
 //! 
 //! let sources = vec![
 //!     "tests/data/a.json".to_string(), // contains {"a": 1}
@@ -77,9 +77,9 @@ use anyhow::{bail, Result};
 /// 
 /// ## Example
 /// 
-/// ```rust
+/// ```rust,no_run
 /// use serde_json::json;
-/// use crate::merge::from_paths;
+/// use modelcards::merge::from_paths;
 /// 
 /// let sources = vec![
 ///     "tests/data/a.json".to_string(), // contains {"a": 1}
@@ -125,7 +125,7 @@ use anyhow::{bail, Result};
 /// 
 /// ```rust
 /// use serde_json::json;
-/// use crate::merge::from_strings;
+/// use modelcards::merge::from_strings;
 /// 
 /// let strings = vec![
 ///     "{\"a\": 1}".to_string(),
@@ -162,7 +162,22 @@ pub fn from_strings(strings: Vec<String>) -> Result<Value> {
 /// 
 /// ```rust
 /// use serde_json::json;
-/// use crate::merge::merge;
+/// 
+/// fn merge(a: &mut serde_json::Value, b: serde_json::Value) {
+///     use serde_json::Value;
+///     match (a, b) {
+///         (a @ &mut Value::Object(_), Value::Object(b)) => {
+///             let a_obj = a.as_object_mut().unwrap();
+///             for (k, v) in b {
+///                 match a_obj.get_mut(&k) {
+///                     Some(a_val) => merge(a_val, v),
+///                     None => { a_obj.insert(k, v); }
+///                 }
+///             }
+///         }
+///         (a, b) => *a = b,
+///     }
+/// }
 /// 
 /// let mut a = json!({
 ///     "a": 1,

@@ -40,7 +40,7 @@ const LOCAL_UNC: &str = "\\\\?\\";
 /// 
 /// ```rust
 /// use std::path::Path;
-/// use crate::utils::strip_unc;
+/// use modelcards::utils::strip_unc;
 ///
 /// let path = Path::new(r"\\?\C:\Path\to\File");
 /// let cleaned_path = strip_unc(path);
@@ -62,7 +62,7 @@ pub fn strip_unc(path: &Path) -> String {
 /// 
 /// ```rust
 /// use std::path::Path;
-/// use crate::utils::create_file;
+/// use modelcards::utils::create_file;
 ///
 /// let path = Path::new("your_path.txt");
 /// create_file(path, "File content").expect("Failed to create file");
@@ -83,9 +83,9 @@ pub fn create_file(path: &Path, content: &str) -> Result<()> {
 /// 
 /// ## Example
 ///
-/// ```rust
+/// ```rust,no_run
 /// use std::path::Path;
-/// use crate::utils::load_json_file;
+/// use modelcards::utils::load_json_file;
 ///
 /// let path = Path::new("your_path.json");
 /// let json_value = load_json_file(path).expect("Failed to load JSON");
@@ -111,10 +111,10 @@ pub fn load_json_file(file_path: &Path) -> Result<serde_json::Value> {
 ///
 /// ```rust
 /// use std::path::Path;
-/// use crate::utils::is_directory_empty;
+/// use modelcards::utils::is_directory_empty;
 ///
-/// let path = Path::new("your_directory");
-/// if is_directory_empty(path).expect("Failed to read directory") {
+/// let path = Path::new(".");
+/// if is_directory_empty(path, true).expect("Failed to read directory") {
 ///    println!("Directory is empty!");
 /// }
 /// ```
@@ -177,8 +177,8 @@ pub mod console {
     /// ## Example
     /// 
     /// ```rust
-    /// use crate::utils::console::error;
-    /// error("An error occurred", None);
+    /// use modelcards::utils::console::error;
+    /// error("An error occurred", None::<String>);
     /// ```
     /// 
     pub fn error(msg: &str, e: Option<impl std::fmt::Debug>) {
@@ -203,7 +203,7 @@ pub mod console {
     /// ## Example
     /// 
     /// ```rust
-    /// use crate::utils::console::warn;
+    /// use modelcards::utils::console::warn;
     /// warn("You should be careful with this!");
     /// ```
     /// 
@@ -220,7 +220,7 @@ pub mod console {
     /// ## Example
     /// 
     /// ```rust
-    /// use crate::utils::console::info;
+    /// use modelcards::utils::console::info;
     /// info("Everything is fine!");
     /// ```
     /// 
@@ -242,7 +242,7 @@ pub mod console {
     /// ## Example
     /// 
     /// ```rust
-    /// use crate::utils::console::debug;
+    /// use modelcards::utils::console::debug;
     /// debug("You should be careful with this!");
     /// ```
     /// 
@@ -259,7 +259,7 @@ pub mod console {
     /// ## Example
     /// 
     /// ```rust
-    /// use crate::utils::console::debug;
+    /// use modelcards::utils::console::debug;
     /// debug("You should be careful with this!");
     /// ```
     /// 

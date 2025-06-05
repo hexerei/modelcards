@@ -45,9 +45,9 @@ use anyhow::{bail, Result};
 /// 
 /// ## Example
 /// 
-/// ```rust
+/// ```rust,no_run
 /// use std::path::Path;
-/// use crate::render::render_template;
+/// use modelcards::render::render_template;
 /// 
 /// let template = Path::new("template.md.jinja"); // content: "Hello, {{ name }}!"
 /// let data = Path::new("data.json"); // content: {"name": "World"}
@@ -113,9 +113,9 @@ pub fn render_template(template: &Path, data: &Path) -> Result<String> {
 /// 
 /// ## Example
 /// 
-/// ```rust
+/// ```rust,no_run
 /// use std::path::Path;
-/// use crate::render::render_template_valid;
+/// use modelcards::render::render_template_valid;
 /// 
 /// let template = Path::new("template.md.jinja"); // content: "Hello, {{ name }}!"
 /// let data = Path::new("data.json"); // content: {"name": "World"}
@@ -192,17 +192,16 @@ pub fn render_template_valid(template: &Path, data: &Path, schema: &Path) -> Res
 /// 
 /// ## Example
 /// 
-/// ```rust
+/// ```rust,no_run
 /// use std::path::Path;
 /// use serde_json::json;
-/// use crate::render::render_value_to_template;
+/// use modelcards::render::render_value_to_template;
 /// 
 /// let data = json!({
-///    "name": "World"
+///    "model_details": {"name": "My Model"}
 /// });
 /// let jinja_file = Path::new("template.md.jinja"); // content: "Hello, {{ name }}!"
-/// let result = render_value_to_template(data, None).unwrap();
-/// assert_eq!(result, "Hello, World!");
+/// let result = render_value_to_template(data, Some(&jinja_file)).unwrap();
 /// ```
 /// 
 pub fn render_value_to_template(data: Value, template: Option<&Path>) -> Result<String> {

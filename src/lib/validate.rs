@@ -40,10 +40,13 @@ use valico::json_schema::scope;
 /// 
 /// ## Example
 /// 
-/// ```rust
-/// use crate::validate::check_against_schema;
+/// ```rust,no_run
+/// use std::path::Path;
+/// use modelcards::validate::check_against_schema;
 /// 
-/// let result = check_against_schema("tests/schemas/my_schema.json", "tests/data/sample.json").unwrap();
+/// let schema_path = Path::new("tests/schemas/my_schema.json");
+/// let data_path = Path::new("tests/data/sample.json");
+/// let result = check_against_schema(schema_path, data_path).unwrap();
 /// assert_eq!(result, true);
 /// ```
 /// 
@@ -86,7 +89,7 @@ pub fn check_against_schema(path: &Path, modelcard: &Path) -> Result<bool> {
 /// 
 /// ```rust
 /// use serde_json::json;
-/// use crate::validate::validate_against_schema;
+/// use modelcards::validate::validate_against_schema;
 /// 
 /// let modelcard = json!({
 ///     "name": "Model Name",
@@ -104,7 +107,7 @@ pub fn check_against_schema(path: &Path, modelcard: &Path) -> Result<bool> {
 ///     },
 ///     "required": ["name", "schema_version"]
 /// });
-/// let result = validate_against_schema(modelcard, schema).unwrap();
+/// let result = validate_against_schema(modelcard, Some(schema)).unwrap();
 /// assert_eq!(result, true);
 /// ```
 /// 
