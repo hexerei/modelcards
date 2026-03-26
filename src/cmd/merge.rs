@@ -1,25 +1,24 @@
 use std::fs;
-//use modelcards::merge::from_strings;
+use anyhow::{bail, Result};
 
-pub fn merge_modelcards(sources: Vec<String>, target: Option<String>) -> Result<String, Box<dyn std::error::Error>> {
-    let merged: String;
+pub fn merge_modelcards(sources: Vec<String>, target: Option<String>) -> Result<String> {
     if sources.is_empty() {
-        return Err("No modelcards to merge".into());
+        bail!("No modelcards to merge");
     }
-    if sources.len() < 2 {
-        merged = fs::read_to_string(sources[0].clone())?;
+    let merged = if sources.len() < 2 {
+        fs::read_to_string(&sources[0])?
     } else {
         let json_result = modelcards::merge::from_paths(sources)?;
         if json_result.is_object() {
-            merged = serde_json::to_string_pretty(&json_result)?;
+            serde_json::to_string_pretty(&json_result)?
         } else {
-            merged = json_result.to_string();
+            json_result.to_string()
         }
-    }
+    };
     if let Some(target_path) = target {
-        fs::write(target_path, merged.clone())?;
+        fs::write(target_path, &merged)?;
     }
-   Ok(merged)
+    Ok(merged)
 }
 
 /// Test if the merge_modelcards function works

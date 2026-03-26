@@ -24,7 +24,7 @@ use crate::{
     utils::console,
     validate::check_against_schema
 };
-use anyhow::{bail, Context, Result};
+use anyhow::{bail, Result};
 
 /// Render a template with a data file to String
 /// 
@@ -57,41 +57,13 @@ use anyhow::{bail, Context, Result};
 /// 
 pub fn render_template(template: &Path, data: &Path) -> Result<String> {
 
-    // // check if template exists
-    // if !template.is_file() {
-    //     bail!("Template file does not exist at '{}'", template.to_string_lossy().to_string());
-    // }
-
-    // check if data exists
     if !data.is_file() {
-        bail!("Modelcard file '{}' does not exist.", data.to_string_lossy().to_string());
+        bail!("Modelcard file '{}' does not exist.", data.display());
     }
 
-    // console::debug("Rendering template...");
-    // console::debug(&format!("Template: {}", template.to_string_lossy().to_string()));
-    // console::debug(&format!("Data: {}", data.to_string_lossy().to_string()));
-
-    // let template_name = template.file_name().unwrap_or(OsStr::new("modelcard.md.jinja")).to_str().unwrap();
-    // let template_content = read_to_string(template).unwrap();
-
-    // //let env = create_env();
-    // let mut env = Environment::new();
-    // env.add_template(template_name, template_content.as_str())?;
-
-    // let template = env.get_template(template_name).unwrap();
-    let data = crate::utils::load_json_file(data)
-        .with_context(|| format!("Failed to load data file: {}", data.display()))?;
-    // let tmp = template.render(&data);
+    let data = crate::utils::load_json_file(data)?;
 
     render_value_to_template(data, Some(template))
-
-    // if let Err(e) = tmp {
-    //     bail!("Could not render template: {:?}", e);
-    // }
-
-    // console::debug("Done!");
-
-    // Ok(tmp.unwrap())
 }
 
 /// Render a template with a data file to String and validate against a schema
@@ -127,51 +99,21 @@ pub fn render_template(template: &Path, data: &Path) -> Result<String> {
 /// 
 pub fn render_template_valid(template: &Path, data: &Path, schema: &Path) -> Result<String> {
 
-    // // check if template exists
-    // if !template.is_file() {
-    //     bail!("Template file does not exist at '{}'", template.to_string_lossy().to_string());
-    // }
-
-    // check if data exists
     if !data.is_file() {
-        bail!("Modelcard file '{}' does not exist.", data.to_string_lossy().to_string());
+        bail!("Modelcard file '{}' does not exist.", data.display());
     }
 
-    // check if schema exists
     if !schema.is_file() {
-        bail!("Modelcard file '{}' does not exist.", schema.to_string_lossy().to_string());
+        bail!("Schema file '{}' does not exist.", schema.display());
     }
 
-    // check if data validates agains schema
     if let Err(e) = check_against_schema(schema, data) {
         bail!("Project could not be validated!\n{:?}", e);
     }
 
-    // console::debug("Rendering template...");
-    // console::debug(&format!("Template: {}", template.to_string_lossy().to_string()));
-    // console::debug(&format!("Data: {}", data.to_string_lossy().to_string()));
-
-    // let template_name = template.file_name().unwrap_or(OsStr::new("modelcard.md.jinja")).to_str().unwrap();
-    // let template_content = read_to_string(template).unwrap();
-
-    // //let env = create_env();
-    // let mut env = Environment::new();
-    // env.add_template(template_name, template_content.as_str())?;
-
-    // let template = env.get_template(template_name).unwrap();
-    let data = crate::utils::load_json_file(data)
-        .with_context(|| format!("Failed to load data file: {}", data.display()))?;
-    // let tmp = template.render(&data);
+    let data = crate::utils::load_json_file(data)?;
 
     render_value_to_template(data, Some(template))
-
-    // if let Err(e) = tmp {
-    //     bail!("Could not render template: {:?}", e);
-    // }
-
-    // console::debug("Done!");
-
-    // Ok(tmp.unwrap())
 }
 
 /// Render a template with a data file to String
@@ -211,33 +153,30 @@ pub fn render_value_to_template(data: Value, template: Option<&Path>) -> Result<
     let template_name: &str;
     let template_content: String;
 
-    if template.is_none() {
-        template_name = "default_md";
-        template_content = crate::assets::templates::get_md().to_string();
-    } else {
-        let template = template.unwrap();
-        // check if template exists
-        if !template.is_file() {
-            bail!("Template file does not exist at '{}'", template.to_string_lossy().to_string());
+    match template {
+        None => {
+            template_name = "default_md";
+            template_content = crate::assets::templates::get_md().to_string();
         }
-
-        template_name = template.file_name()
-            .unwrap_or(OsStr::new("modelcard.md.jinja"))
-            .to_str()
-            .unwrap_or("modelcard.md.jinja");
-        template_content = read_to_string(template)
-            .map_err(|e| anyhow::anyhow!("Failed to read template file: {}", e))?;
+        Some(t) => {
+            if !t.is_file() {
+                bail!("Template file does not exist at '{}'", t.display());
+            }
+            template_name = t.file_name()
+                .unwrap_or(OsStr::new("modelcard.md.jinja"))
+                .to_str()
+                .unwrap_or("modelcard.md.jinja");
+            template_content = read_to_string(t)
+                .map_err(|e| anyhow::anyhow!("Failed to read template file: {}", e))?;
+        }
     }
 
     console::debug("Rendering template...");
     console::debug(&format!("Template: {}", template_name));
 
-    //let env = create_env();
     let mut env = Environment::new();
     env.add_template(template_name, template_content.as_str())?;
-
-    let template = env.get_template(template_name)
-        .map_err(|e| anyhow::anyhow!("Failed to get template: {}", e))?;
+    let template = env.get_template(template_name)?;
     
     match template.render(&data) {
         Ok(rendered) => {

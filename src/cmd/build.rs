@@ -9,24 +9,21 @@ pub fn build_project(path: &Path, modelcard: Option<String>, target: Option<Stri
 
     // check if project directory exists
     if !path.is_dir() {
-        bail!("Project directory does not exist at '{}'", path.to_string_lossy().to_string());
+        bail!("Project directory does not exist at '{}'", path.display());
     }
 
     let modelcard = opt_get_path(modelcard, "sample.json", path)?;
     let file_name = Path::new(modelcard.file_name().ok_or_else(|| anyhow::anyhow!("Invalid modelcard path"))?).with_extension("md");
     //let target_file = opt_get_path(target, modelcard.file_name().unwrap().to_str().unwrap(), path.join("cards").as_path())?;
 
-    // check if output directory exists and create it if not
     let target = target.unwrap_or_else(|| path.join("cards").join(&file_name).to_string_lossy().to_string());
     let out_dir = Path::new(&target).parent().ok_or_else(|| anyhow::anyhow!("Invalid target path"))?;
-    if !out_dir.exists() {
-        create_dir_all(out_dir)?;
-    }
+    create_dir_all(out_dir)?;
 
     // check if output file exists and if force is not set
     let target_file = out_dir.join(file_name);
     if target_file.exists() && !force {
-        bail!("Modelcard file '{}' already exists. Use --force to overwrite.", target_file.to_string_lossy().to_string());
+        bail!("Modelcard file '{}' already exists. Use --force to overwrite.", target_file.display());
     }
 
     // check if data validates agains schema
@@ -36,10 +33,10 @@ pub fn build_project(path: &Path, modelcard: Option<String>, target: Option<Stri
 
     log::info!("Building project...");
 
-    log::info!("Project: {}", path.to_string_lossy().to_string());
-    log::info!("Modelcard: {}", modelcard.to_string_lossy().to_string());
-    log::info!("Template: {}", path.join("templates/modelcard.md.jinja").to_string_lossy().to_string());
-    log::info!("Output: {}", target_file.to_string_lossy().to_string());
+    log::info!("Project: {}", path.display());
+    log::info!("Modelcard: {}", modelcard.display());
+    log::info!("Template: {}", path.join("templates/modelcard.md.jinja").display());
+    log::info!("Output: {}", target_file.display());
 
     // render the template
     match render_template(&path.join("templates/modelcard.md.jinja"), modelcard.as_path()) {

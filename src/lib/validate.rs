@@ -115,10 +115,7 @@ pub fn validate_against_schema(modelcard: Value, schema: Option<Value>) -> Resul
 
     let schema_v7 = match schema {
         Some(s) => s,
-        None => {
-            serde_json::from_str(assets::schema::get_schema())
-                .expect("Failed to parse default schema")
-        }
+        None => serde_json::from_str(assets::schema::get_schema())?,
     };
 
     let mut scope = scope::Scope::new();
