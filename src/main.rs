@@ -1,4 +1,4 @@
-use std::{path::PathBuf};
+use std::path::PathBuf;
 
 use cli::{Cli, Command};
 use settings::Settings;
@@ -15,13 +15,39 @@ fn main() {
     env_logger::Builder::new().filter_level(cli.verbose.log_level_filter()).init();
     let cli_dir: PathBuf = cli.root.canonicalize().unwrap_or_else(|e| {
         console::error_exit(&format!("Could not find canonical path of root dir: {}", cli.root.display()), Some(e));
-        unreachable!(); // Add this line to satisfy the expected return type of `PathBuf`
+        unreachable!();
     });
     log::debug!("CLI path: {:?}", cli_dir);
 
-    let settings = Settings::new(cli.config.display().to_string().as_str()).expect("Could not load settings");
-    log::debug!("Settings: {:?}", settings);
+    // Collect CLI argument overrides for the config hierarchy.
+    // Precedence: defaults < config.toml < env vars (MC_*) < CLI args
+    let mut overrides: Vec<(&str, String)> = vec![];
+    match &cli.command {
+        Command::Build { source, target, .. } => {
+            if let Some(s) = source {
+                overrides.push(("input.data", s.clone()));
+            }
+            if let Some(t) = target {
+                overrides.push(("output.target", t.clone()));
+            }
+        }
+        Command::Check { source: Some(s) } => {
+            overrides.push(("input.data", s.clone()));
+        }
+        Command::Validate { schema: Some(s), .. } => {
+            overrides.push(("input.schema", s.clone()));
+        }
+        Command::Render { template: Some(t), .. } => {
+            overrides.push(("output.template", t.clone()));
+        }
+        _ => {}
+    }
 
+    let settings = Settings::with_overrides(
+        cli.config.display().to_string().as_str(),
+        overrides,
+    ).expect("Could not load settings");
+    log::debug!("Settings: {:?}", settings);
 
     match cli.command {
         Command::Merge { sources, target } => {
@@ -31,17 +57,17 @@ fn main() {
             }
             console::success_exit("Modelcards successfully merged!");
         },
-        Command::Validate { sources, schema} => {
-            log::debug!("Validate data={:?}, schema={:?}", sources, schema);
-            match cmd::validate_modelcard(sources, schema) {
+        Command::Validate { sources, .. } => {
+            log::debug!("Validate data={:?}, schema={:?}", sources, settings.input.schema);
+            match cmd::validate_modelcard(sources, settings.input.schema) {
                 Ok(true) => console::success_exit("Modelcard is valid!"),
                 Ok(false) => console::success_exit("Modelcard is not valid!"),
                 Err(e) => console::error_exit("Could not validate modelcard!", Some(e)),
             }
         },
-        Command::Render { sources, template} => {
-            log::debug!("Render data={:?}, template={:?}", sources, template);
-            match cmd::render_modelcard(sources, template) {
+        Command::Render { sources, .. } => {
+            log::debug!("Render data={:?}, template={:?}", sources, settings.output.template);
+            match cmd::render_modelcard(sources, settings.output.template) {
                 Ok(true) => console::success_exit("Modelcard successfully rendered!"),
                 Ok(false) => console::success_exit("Could not render modelcard!"),
                 Err(e) => console::error_exit("Could not render modelcard!", Some(e)),
@@ -52,19 +78,17 @@ fn main() {
                 console::error_exit("Could not create project", Some(e));
             }
         },
-        Command::Build { source, target, force } => {
-            log::debug!("Build base_url={:?}, output_dir={:?}, force={:?}", source, target, force);
-            let source = source.unwrap_or(settings.input.data);
-            let target = target.unwrap_or(settings.output.target);
-            if let Err(e) = cmd::build_project(&cli_dir, Some(source), Some(target), force.unwrap_or(settings.force)) {
+        Command::Build { force, .. } => {
+            log::debug!("Build source={:?}, target={:?}, force={:?}", settings.input.data, settings.output.target, force);
+            let force = force.unwrap_or(settings.force);
+            if let Err(e) = cmd::build_project(&cli_dir, Some(settings.input.data), Some(settings.output.target), force) {
                 console::error_exit("Could not build project", Some(e));
             }
             console::success_exit("Project successfully buildt!");
         },
-        Command::Check { source } => {
-            log::debug!("Check source={:?}", source);
-            let source = source.unwrap_or(settings.input.data);
-            let valid = cmd::check_project(&cli_dir, Some(source));
+        Command::Check { .. } => {
+            log::debug!("Check source={:?}", settings.input.data);
+            let valid = cmd::check_project(&cli_dir, Some(settings.input.data));
             if valid.is_ok() {
                 console::success_exit("Project is valid!");
             } else {
@@ -77,4 +101,3 @@ fn main() {
         }
     }
 }
-

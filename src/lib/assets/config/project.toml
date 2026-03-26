@@ -4,8 +4,10 @@ project_dir = "."
 
 [input]
 data = "./sample.json"
+schema = "./schema/modelcard.schema.json"
 validate = true
 
 [output]
 target = "./cards/modelcard.md"
+template = "./templates/modelcard.md.jinja"
 validate = true

@@ -4,7 +4,7 @@ use std::{
 };
 
 use modelcards::{
-    assets::{schema, templates, config},
+    assets::{schema, templates, config::get_project_config},
     utils::{strip_unc, create_file, is_directory_empty}
 };
 
@@ -21,7 +21,7 @@ pub fn create_new_project(name: &str, force: bool) -> Result<()> {
     }
     println!("Welcome to modelcards!");
 
-    populate(path, config::get_default())?;
+    populate(path, get_project_config())?;
     println!();
     println!("Done! Your project was created in {}", strip_unc(&canonicalize(path)?));
     println!();
