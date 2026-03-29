@@ -1,111 +1,106 @@
-# TODO: Modelcards Project Optimizations
+# TODO: Modelcards Project
 
-## 🔴 High Priority
+> Last reviewed: 2025-07 — audited against commit history and codebase.
 
-### 1. Error Handling
-- [x] Remove all `unwrap()` calls (20+ instances found) ✅
-- [x] Replace with proper error propagation using `?` operator ✅
-- [x] Add consistent error context using `anyhow::context()` ✅
-- [ ] Create custom error types for domain-specific errors
-- [ ] Add panic handler for better error reporting in release builds
+## I. High Priority
 
-### 2. Performance Optimizations
-- [x] Fix unnecessary string allocations in asset modules ✅
-  - [x] Return `&'static str` directly from `include_str!` macros ✅
-  - [x] Remove `String::from()` in `assets/schema/mod.rs` ✅
-  - [x] Remove `String::from()` in `assets/templates/mod.rs` ✅
-- [ ] Use `Cow<str>` for path operations to avoid allocations
-- [ ] Add caching for frequently accessed files (schemas, templates)
-- [ ] Profile application to identify actual bottlenecks
-
-### 3. Dependency Management
-- [ ] Resolve duplicate dependencies
-  - [ ] Fix `hashbrown` multiple versions
-  - [ ] Fix `phf_shared` multiple versions
-- [ ] Consider replacing `valico` with lighter JSON schema validator
+### 1. Dependency Management
+- [ ] Replace `valico` with `jsonschema` crate
+  - `valico` is unmaintained and pulls in heavy transitive deps (`hashbrown`, `phf_shared` duplicates)
+  - `jsonschema` is modern, well-maintained, and proposed in `feature-visual-editor.md`
+- [ ] Update all dependencies to latest versions (`cargo update`)
 - [ ] Review and remove unnecessary dependency features
-- [ ] Update all dependencies to latest versions
+
+### 2. Error Handling
+- [x] Remove `unwrap()` calls from production code (~1 remains in `strip_unc()`)
+- [x] Replace with proper error propagation using `?` operator
+- [x] Add error context using `anyhow::context()` (used in `merge.rs`, `utils.rs`)
+- [ ] Add panic handler for better crash reporting in release builds
+  - Consider `human-panic` crate — one-liner integration, big UX improvement
+
+### 3. Dead Asset Cleanup
+- [ ] Remove or expose unreachable HuggingFace assets
+  - 4 files (`huggingface.datasetcard.schema.md`, `huggingface.modelcard.schema.md`,
+    `huggingface.datasetcard.md.jinja`, `huggingface.modelcard.md.jinja`) are compiled
+    into the binary via `include_str!` but have **no accessor functions** — dead weight
 
 ### 4. Build Configuration
-- [x] Add release profile optimization to `Cargo.toml`
+- [x] Add release profile optimization to `Cargo.toml` (`opt-level=3`, `lto=true`, `codegen-units=1`, `strip=true`)
 - [x] Add `Cargo.lock` to version control
-- [ ] Consider static linking for easier distribution
 
-## 🟡 Medium Priority
+## II. Medium Priority
 
-### 5. Test Structure
-- [ ] Create `tests/` directory for integration tests
+### 5. Testing
+- [ ] Create `tests/` directory with integration tests (run the CLI binary end-to-end)
 - [ ] Add comprehensive test coverage for error cases
-- [ ] Consider property-based testing for JSON merging
-- [ ] Add benchmarks for performance-critical operations
-- [ ] Add rustdoc tests to ensure examples stay current
+- [ ] Make rustdoc examples compilable (audit and remove unnecessary `no_run` markers)
 
-### 6. Asset Management
-- [ ] Implement asset compression using `include_flate!`
-- [ ] Add lazy static loading for rarely-used templates
-- [ ] Implement compile-time validation for templates
-- [ ] Consolidate small asset modules into single module
+### 6. CI/CD Improvements
+- [x] GitHub Actions workflow for build & test (`ci.yml`)
+- [x] Tag-triggered release with binary upload and crates.io publish (`release.yml`)
+- [ ] Add `Swatinem/rust-cache` for faster CI builds
+- [ ] Add `cargo clippy` and `cargo fmt --check` steps to CI
+- [ ] Add `cargo audit` security check to CI
+- [ ] Add Rust version matrix (test MSRV + stable)
+- [ ] Add code coverage reporting (e.g., `cargo-tarpaulin` + Codecov)
+- [ ] Use `cargo-release` for version management (automates bumps, changelog, tagging)
 
-### 7. Parallel Processing
-- [ ] Add `rayon` dependency for parallel processing
-- [ ] Implement parallel model card processing in build command
-- [ ] Parallelize validation operations for multiple files
+### 7. Code Organization
+- [ ] Consolidate path utilities — move `opt_get_path` from `cmd/build.rs` into `lib/utils.rs`
+- [ ] Add compile-time template validation (build script or `const` assertion)
 
-### 8. Code Organization
-- [ ] Create dedicated path utilities module
-- [ ] Consolidate duplicate path handling logic
-- [ ] Reorganize small modules that could be combined
-- [ ] Add `#[must_use]` on functions returning Results
+## III. Nice to Have
 
-## 🟢 Nice to Have
-
-### 9. CI/CD Setup
-- [ ] Add GitHub Actions workflow
-  - [ ] Test matrix for different Rust versions
-  - [ ] Dependency caching
-  - [ ] Code coverage reporting
-  - [ ] Release automation
-- [ ] Use `cargo-release` for version management
-- [ ] Add security audit in CI pipeline
-
-### 10. Documentation
-- [ ] Create `examples/` directory with real-world usage
-- [ ] Add more examples to library documentation
-- [ ] Use `cargo-readme` to generate README from lib.rs
-- [ ] Document all public APIs with examples
-- [ ] Add architecture decision records (ADRs)
-
-### 11. Developer Experience
+### 8. Developer Experience
 - [ ] Add pre-commit hooks
   - [ ] `cargo fmt` check
   - [ ] `cargo clippy` check
   - [ ] Test execution
 - [ ] Create `clippy.toml` with project-specific lints
-- [ ] Add `--dry-run` flag for destructive operations
-- [ ] Implement command aliases for common operations
-- [ ] Use `once_cell` for lazy static configuration
+- [ ] Add `--dry-run` flag for `init` and `build` commands
 
-### 12. Code Quality
-- [ ] Add `#[derive(Debug, Clone)]` consistently across structs
-- [ ] Consider using `thiserror` for ergonomic error types
-- [ ] Add configuration validation at startup
-- [ ] Simplify verbose handling with env_logger
+### 9. Code Quality
+- [ ] Add `#[derive(Debug, Clone)]` consistently across structs (currently only on `settings.rs` types)
+- [ ] Broaden use of `.context()` / `.with_context()` for richer error messages
 
-## 📊 Metrics to Track
+### 10. Documentation
+- [ ] Document all public library APIs with compilable examples
+- [ ] Add Cargo examples (`examples/*.rs`) for library consumers
+- [ ] Expand design docs in `docs/` (effectively ADRs — `feature-hierarchical-config.md` and `feature-visual-editor.md` already exist)
 
-- [ ] Reduction in binary size after optimizations
-- [ ] Performance benchmarks before/after changes
-- [ ] Test coverage percentage
-- [ ] Number of `unwrap()` calls remaining
-- [ ] Dependency tree complexity
+## Completed (archived)
 
-## 🎯 Quick Wins
+Items confirmed done and removed from active tracking:
 
-1. **Fix duplicate dependencies**: ~30 minutes, cleaner dependency tree
+- ~~Remove all `unwrap()` calls~~ — production code clean; remaining are doc examples and tests
+- ~~Return `&'static str` from `include_str!` macros~~ — all 6 asset accessors return `&'static str`
+- ~~Remove `String::from()` in asset modules~~ — confirmed clean
+- ~~Add release profile to `Cargo.toml`~~ — aggressively optimized
+- ~~Add `Cargo.lock` to version control~~ — tracked
+- ~~Add GitHub Actions workflows~~ — `ci.yml` + `release.yml` with crates.io publish
+- ~~Simplify verbose handling with `env_logger`~~ — integrated with `clap-verbosity-flag`
+- ~~Implement hierarchical config~~ — 5-layer precedence: defaults → env mode → config.toml → env vars → CLI
 
-## 📝 Notes
+## Removed (obsolete)
 
-- Most optimizations are backwards compatible
-- Priority based on impact vs effort ratio
-- Consider creating feature branches for major changes
-- Run benchmarks before implementing performance optimizations to verify actual impact
+Items from the original TODO that were evaluated and dropped:
+
+| Item | Reason |
+|------|--------|
+| `Cow<str>` for path operations | Adds complexity for negligible gain in a CLI tool |
+| Caching for schemas/templates | Assets are `include_str!` (zero-cost); disk files read once per invocation |
+| Profile application for bottlenecks | Tool processes small files; performance is not a concern |
+| Static linking for distribution | Rust links statically by default; release workflow handles binary distribution |
+| Property-based testing for JSON merge | Low ROI — merge logic is straightforward deep-merge |
+| Performance benchmarks | Not a bottleneck for this tool |
+| `include_flate!` asset compression | Assets are small text files; compression overhead > savings |
+| Lazy static loading for templates | `include_str!` data is in `.rodata` — zero-cost to reference |
+| Consolidate small asset modules | Current 3-module structure (`config/`, `schema/`, `templates/`) is clean and logical |
+| `rayon` parallel processing | Single model card processing takes milliseconds; thread pool overhead > time saved |
+| `#[must_use]` on Result functions | Rust compiler already warns on unused `Result` values |
+| Custom error types / `thiserror` | `anyhow` is idiomatic for CLI tools; only needed if library is published independently |
+| `cargo-readme` | README and lib.rs serve different audiences; manual management is fine |
+| `once_cell` for lazy config | `std::sync::OnceLock` exists in std, but config is loaded once in `main()` — no globals needed |
+| Command aliases | `clap` supports this natively if needed later |
+| Binary size tracking | Not a real concern |
+| Dependency tree complexity metric | Only relevant during `valico` replacement |
