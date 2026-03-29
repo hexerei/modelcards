@@ -1,7 +1,8 @@
-use modelcards::assets::config::get_default;
 use config::{Config, ConfigError, Environment, File};
+use modelcards::assets::config::get_default;
 use serde::Deserialize;
 use std::env;
+use std::path::Path;
 
 #[derive(Debug, Deserialize)]
 #[allow(unused)]
@@ -34,7 +35,10 @@ impl Settings {
         Self::with_overrides(config_name, vec![])
     }
 
-    pub fn with_overrides(config_name: &str, overrides: Vec<(&str, String)>) -> Result<Self, ConfigError> {
+    pub fn with_overrides(
+        config_name: &str,
+        overrides: Vec<(&str, String)>,
+    ) -> Result<Self, ConfigError> {
         let run_mode = env::var("RUN_MODE").unwrap_or_else(|_| "development".into());
 
         let mut builder = Config::builder()
@@ -43,10 +47,7 @@ impl Settings {
             // Add in the current environment file
             // Default to 'development' env
             // Note that this file is _optional_
-            .add_source(
-                File::with_name(&run_mode.to_string())
-                    .required(false),
-            )
+            .add_source(File::with_name(&run_mode.to_string()).required(false))
             // Add in a local configuration file
             // This file shouldn't be checked in to git
             .add_source(File::with_name(config_name).required(false))
@@ -112,16 +113,20 @@ mod tests {
         let settings = Settings::with_overrides("nonexistent_config", overrides)
             .expect("Could not load settings with overrides");
         assert_eq!(settings.input.data, "custom.json");
-        assert_eq!(settings.input.schema, Some("/path/to/schema.json".to_string()));
+        assert_eq!(
+            settings.input.schema,
+            Some("/path/to/schema.json".to_string())
+        );
         assert_eq!(settings.output.target, "/output/card.md");
-        assert_eq!(settings.output.template, Some("/templates/custom.jinja".to_string()));
+        assert_eq!(
+            settings.output.template,
+            Some("/templates/custom.jinja".to_string())
+        );
     }
 
     #[test]
     fn test_with_overrides_does_not_clobber_unset_optionals() {
-        let overrides = vec![
-            ("input.data", "other.json".to_string()),
-        ];
+        let overrides = vec![("input.data", "other.json".to_string())];
         let settings = Settings::with_overrides("nonexistent_config", overrides)
             .expect("Could not load settings with overrides");
         assert_eq!(settings.input.data, "other.json");
@@ -129,23 +134,65 @@ mod tests {
         assert!(settings.output.template.is_none());
     }
 
+    /// Write a test config file and return the config name (without extension)
+    /// suitable for passing to Settings::new / Settings::with_overrides.
+    fn write_test_config(dir: &Path) -> String {
+        let config_path = dir.join("config.toml");
+        std::fs::write(
+            &config_path,
+            r#"
+verbose = true
+force = false
+project_dir = "."
+
+[input]
+data = "./sample.json"
+schema = "./schema/modelcard.schema.json"
+validate = true
+
+[output]
+target = "./cards/modelcard.md"
+template = "./templates/modelcard.md.jinja"
+validate = true
+"#,
+        )
+        .expect("Could not write test config");
+        // Return path without .toml extension (config crate adds it)
+        dir.join("config").to_str().unwrap().to_string()
+    }
+
     #[test]
     fn test_config_file_overrides_defaults() {
-        // The demo/test/config.toml includes schema and template
-        let settings = Settings::new("demo/test/config")
-            .expect("Could not load settings from demo config");
-        assert_eq!(settings.input.schema, Some("./schema/modelcard.schema.json".to_string()));
-        assert_eq!(settings.output.template, Some("./templates/modelcard.md.jinja".to_string()));
+        let tmp = std::env::temp_dir().join("mc_test_config_overrides");
+        std::fs::create_dir_all(&tmp).unwrap();
+        let config_name = write_test_config(&tmp);
+
+        let settings =
+            Settings::new(&config_name).expect("Could not load settings from test config");
+        assert_eq!(
+            settings.input.schema,
+            Some("./schema/modelcard.schema.json".to_string())
+        );
+        assert_eq!(
+            settings.output.template,
+            Some("./templates/modelcard.md.jinja".to_string())
+        );
+
+        std::fs::remove_dir_all(&tmp).ok();
     }
 
     #[test]
     fn test_cli_overrides_beat_config_file() {
-        let overrides = vec![
-            ("input.schema", "/cli/schema.json".to_string()),
-        ];
-        let settings = Settings::with_overrides("demo/test/config", overrides)
-            .expect("Could not load settings");
+        let tmp = std::env::temp_dir().join("mc_test_cli_overrides");
+        std::fs::create_dir_all(&tmp).unwrap();
+        let config_name = write_test_config(&tmp);
+
+        let overrides = vec![("input.schema", "/cli/schema.json".to_string())];
+        let settings =
+            Settings::with_overrides(&config_name, overrides).expect("Could not load settings");
         // CLI override should win over config file value
         assert_eq!(settings.input.schema, Some("/cli/schema.json".to_string()));
+
+        std::fs::remove_dir_all(&tmp).ok();
     }
 }
