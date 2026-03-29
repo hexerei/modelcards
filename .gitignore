@@ -1,3 +1,6 @@
 /target
 /demo
 .DS_Store
+.claude/
+.gstack/
+CLAUDE.md
