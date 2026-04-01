@@ -149,8 +149,7 @@ header h1 { font-size: 16px; font-weight: 600; }
     <div class="pane-preview" id="pane-preview">
       <div class="pane-header">
         <span class="pane-title">Preview</span>
-        <span class="preview-tab active" data-mode="preview" onclick="setPreviewMode('preview')">Rendered</span>
-        <span class="preview-tab" data-mode="merged" onclick="setPreviewMode('merged')">Merged JSON</span>
+        <span class="preview-tab" id="btn-source" onclick="toggleSource()">Source</span>
         <button class="pane-expand" id="btn-expand-preview" onclick="expandPane('preview')"></button>
       </div>
       <div class="preview-content" id="preview-content"></div>
@@ -567,11 +566,9 @@ async function refreshValidation() {
   }
 }
 
-function setPreviewMode(mode) {
-  state.previewMode = mode;
-  document.querySelectorAll('.preview-tab').forEach(t => {
-    t.classList.toggle('active', t.dataset.mode === mode);
-  });
+function toggleSource() {
+  state.previewMode = state.previewMode === 'merged' ? 'preview' : 'merged';
+  document.getElementById('btn-source').classList.toggle('active', state.previewMode === 'merged');
   refreshPreview();
 }
 
@@ -698,19 +695,19 @@ function updateExpandButtons() {
   const btnEditor = document.getElementById('btn-expand-editor');
   const btnPreview = document.getElementById('btn-expand-preview');
   if (expandedPane === 'editor') {
-    btnEditor.textContent = 'Collapse \u25B6';
+    btnEditor.textContent = '\u25C0 Collapse';
     btnEditor.title = 'Restore split view';
     btnPreview.textContent = '\u25C0 Expand';
     btnPreview.title = 'Expand preview';
   } else if (expandedPane === 'preview') {
-    btnEditor.textContent = 'Expand \u25C0';
+    btnEditor.textContent = 'Expand \u25B6';
     btnEditor.title = 'Expand editor';
-    btnPreview.textContent = '\u25B6 Collapse';
+    btnPreview.textContent = 'Collapse \u25B6';
     btnPreview.title = 'Restore split view';
   } else {
-    btnEditor.textContent = 'Expand \u25C0';
+    btnEditor.textContent = 'Expand \u25B6';
     btnEditor.title = 'Expand editor to full width';
-    btnPreview.textContent = '\u25B6 Expand';
+    btnPreview.textContent = '\u25C0 Expand';
     btnPreview.title = 'Expand preview to full width';
   }
 }
