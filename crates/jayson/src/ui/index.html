@@ -15,10 +15,12 @@
   --mono: "SF Mono", Monaco, "Cascadia Code", monospace;
 }
 body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; }
-#app { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr; height: 100vh; }
+#app { display: flex; flex-direction: column; height: 100vh; }
+.splitpane { display: flex; flex: 1; min-height: 0; }
 header {
-  grid-column: 1 / -1; display: flex; align-items: center; gap: 12px;
+  display: flex; align-items: center; gap: 12px;
   padding: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 header h1 { font-size: 16px; font-weight: 600; }
 .status { margin-left: auto; font-size: 12px; padding: 4px 8px; border-radius: var(--radius); }
@@ -38,8 +40,30 @@ header h1 { font-size: 16px; font-weight: 600; }
 .tab.active { background: var(--tab-active); font-weight: 600; }
 .tab.readonly::after { content: " (readonly)"; color: var(--text-muted); font-weight: 400; font-size: 11px; }
 
+/* Pane containers */
+.pane-editor { display: flex; flex-direction: column; min-width: 60px; overflow: hidden; }
+.pane-preview { display: flex; flex-direction: column; min-width: 60px; overflow: hidden; }
+.pane-header {
+  display: flex; align-items: center; padding: 4px 8px; background: var(--tab-inactive);
+  border-bottom: 1px solid var(--border); flex-shrink: 0; gap: 4px;
+}
+.pane-header .pane-title { font-weight: 600; font-size: 12px; text-transform: uppercase; color: var(--text-muted); }
+.pane-expand {
+  margin-left: auto; cursor: pointer; background: none; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 2px 6px; font-size: 11px; color: var(--text-muted);
+  font-family: var(--font);
+}
+.pane-expand:hover { background: var(--surface); color: var(--text); }
+
+/* Splitter */
+.splitter {
+  width: 5px; cursor: col-resize; background: var(--border); flex-shrink: 0;
+  transition: background 0.15s;
+}
+.splitter:hover, .splitter.dragging { background: var(--primary); }
+
 /* Editor panel */
-.editor-panel { overflow-y: auto; padding: 16px; }
+.editor-panel { overflow-y: auto; padding: 16px; flex: 1; }
 .form-section { margin-bottom: 12px; border: 1px solid var(--border); border-radius: var(--radius); }
 .section-header {
   display: flex; align-items: center; padding: 8px 12px; background: var(--tab-inactive);
@@ -78,12 +102,10 @@ header h1 { font-size: 16px; font-weight: 600; }
 .btn.small { padding: 2px 6px; font-size: 11px; }
 
 /* Preview panel */
-.preview-panel {
-  border-left: 1px solid var(--border); display: flex; flex-direction: column;
-}
 .preview-header {
   padding: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--border);
   font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0;
 }
 .preview-header .preview-tab { cursor: pointer; padding: 4px 8px; border-radius: var(--radius); }
 .preview-header .preview-tab.active { background: var(--primary); color: #fff; }
@@ -110,21 +132,29 @@ header h1 { font-size: 16px; font-weight: 600; }
     <h1 id="editor-title">Jayson Editor</h1>
     <span id="validation-status" class="status"></span>
   </header>
-  <div style="display:flex;flex-direction:column;">
-    <div id="layer-tabs" class="tabs"></div>
-    <div class="editor-panel" id="editor"></div>
-    <div class="save-bar">
-      <button class="btn primary" id="save-btn" onclick="saveLayer()">Save</button>
-      <span class="msg" id="save-msg"></span>
+  <div class="splitpane" id="splitpane">
+    <div class="pane-editor" id="pane-editor">
+      <div class="pane-header">
+        <span class="pane-title">Editor</span>
+        <button class="pane-expand" onclick="expandPane('editor')" title="Expand editor">&#x25C0; &#x25B6;</button>
+      </div>
+      <div id="layer-tabs" class="tabs"></div>
+      <div class="editor-panel" id="editor"></div>
+      <div class="save-bar">
+        <button class="btn primary" id="save-btn" onclick="saveLayer()">Save</button>
+        <span class="msg" id="save-msg"></span>
+      </div>
     </div>
-  </div>
-  <div class="preview-panel">
-    <div class="preview-header">
-      <span>Preview</span>
-      <span class="preview-tab active" data-mode="preview" onclick="setPreviewMode('preview')">Rendered</span>
-      <span class="preview-tab" data-mode="merged" onclick="setPreviewMode('merged')">Merged JSON</span>
+    <div class="splitter" id="splitter"></div>
+    <div class="pane-preview" id="pane-preview">
+      <div class="pane-header">
+        <span class="pane-title">Preview</span>
+        <span class="preview-tab active" data-mode="preview" onclick="setPreviewMode('preview')">Rendered</span>
+        <span class="preview-tab" data-mode="merged" onclick="setPreviewMode('merged')">Merged JSON</span>
+        <button class="pane-expand" onclick="expandPane('preview')" title="Expand preview">&#x25B6; &#x25C0;</button>
+      </div>
+      <div class="preview-content" id="preview-content"></div>
     </div>
-    <div class="preview-content" id="preview-content"></div>
   </div>
 </div>
 
@@ -591,6 +621,67 @@ document.addEventListener('keydown', (e) => {
     saveLayer();
   }
 });
+
+// Splitpane: draggable divider
+(function() {
+  const splitpane = document.getElementById('splitpane');
+  const splitter = document.getElementById('splitter');
+  const editorPane = document.getElementById('pane-editor');
+  const previewPane = document.getElementById('pane-preview');
+  let dragging = false;
+
+  // Initial 50/50 split
+  editorPane.style.flex = '1 1 50%';
+  previewPane.style.flex = '1 1 50%';
+
+  splitter.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    dragging = true;
+    splitter.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const rect = splitpane.getBoundingClientRect();
+    const offset = e.clientX - rect.left;
+    const total = rect.width - 5; // splitter width
+    const pct = Math.max(5, Math.min(95, (offset / rect.width) * 100));
+    editorPane.style.flex = `0 0 ${pct}%`;
+    previewPane.style.flex = `0 0 ${100 - pct}%`;
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false;
+    splitter.classList.remove('dragging');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  });
+})();
+
+// Expand/collapse panes
+let expandedPane = null;
+function expandPane(which) {
+  const editorPane = document.getElementById('pane-editor');
+  const previewPane = document.getElementById('pane-preview');
+
+  if (expandedPane === which) {
+    // Restore 50/50
+    editorPane.style.flex = '1 1 50%';
+    previewPane.style.flex = '1 1 50%';
+    expandedPane = null;
+  } else if (which === 'editor') {
+    editorPane.style.flex = '0 0 95%';
+    previewPane.style.flex = '0 0 5%';
+    expandedPane = 'editor';
+  } else {
+    editorPane.style.flex = '0 0 5%';
+    previewPane.style.flex = '0 0 95%';
+    expandedPane = 'preview';
+  }
+}
 
 init();
 </script>
