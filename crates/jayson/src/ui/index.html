@@ -362,7 +362,6 @@ function onFieldChange(el) {
   setNestedValue(data, path, value);
   state.dirty = true;
   document.getElementById('save-msg').textContent = 'Unsaved changes';
-  debouncePreview();
 }
 
 function getNestedValue(obj, path) {
@@ -402,7 +401,6 @@ function addArrayItem(path) {
   setNestedValue(data, path, arr);
   state.dirty = true;
   renderForm();
-  debouncePreview();
 }
 
 function removeArrayItem(path, index) {
@@ -413,7 +411,6 @@ function removeArrayItem(path, index) {
     arr.splice(index, 1);
     state.dirty = true;
     renderForm();
-    debouncePreview();
   }
 }
 
@@ -427,7 +424,6 @@ function moveArrayItem(path, index, direction) {
   [arr[index], arr[newIndex]] = [arr[newIndex], arr[index]];
   state.dirty = true;
   renderForm();
-  debouncePreview();
 }
 
 function getSchemaForPath(path) {
@@ -470,6 +466,7 @@ async function saveLayer() {
     if (res.ok) {
       state.dirty = false;
       document.getElementById('save-msg').textContent = 'Saved';
+      refreshPreview();
       setTimeout(() => {
         if (!state.dirty) document.getElementById('save-msg').textContent = '';
       }, 2000);
@@ -512,12 +509,6 @@ async function addNewLayer() {
   }
 }
 
-let previewTimer;
-function debouncePreview() {
-  clearTimeout(previewTimer);
-  previewTimer = setTimeout(() => { refreshPreview(); refreshValidation(); }, 300);
-}
-
 async function refreshPreview() {
   const el = document.getElementById('preview-content');
   if (state.previewMode === 'merged') {
@@ -535,10 +526,22 @@ async function refreshPreview() {
         const err = await res.json().catch(() => ({ error: res.statusText }));
         el.innerHTML = `<pre style="color:#c00;padding:16px;">Preview error: ${esc(err.error || 'Unknown error')}</pre>`;
       } else {
-        const html = await res.text();
+        let html = await res.text();
+        // Inject script to open external links in new tabs
+        const linkGuard = '<script>document.addEventListener("click",function(e){' +
+          'var a=e.target.closest("a");if(!a)return;' +
+          'var h=a.getAttribute("href");if(!h||h.startsWith("#"))return;' +
+          'e.preventDefault();window.open(h,"_blank","noopener")' +
+          '});<\/script>';
+        html = html.replace(/<\/body>/i, linkGuard + '</body>');
+        // Use blob URL for origin isolation — iframe gets its own origin,
+        // scripts run normally, # anchors stay within the document
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
         el.innerHTML = '';
         const iframe = document.createElement('iframe');
-        iframe.srcdoc = html;
+        iframe.src = url;
+        iframe.addEventListener('load', () => URL.revokeObjectURL(url));
         el.appendChild(iframe);
       }
     } catch (e) {
