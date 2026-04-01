@@ -136,7 +136,7 @@ header h1 { font-size: 16px; font-weight: 600; }
     <div class="pane-editor" id="pane-editor">
       <div class="pane-header">
         <span class="pane-title">Editor</span>
-        <button class="pane-expand" onclick="expandPane('editor')" title="Expand editor">&#x25C0; &#x25B6;</button>
+        <button class="pane-expand" id="btn-expand-editor" onclick="expandPane('editor')"></button>
       </div>
       <div id="layer-tabs" class="tabs"></div>
       <div class="editor-panel" id="editor"></div>
@@ -151,7 +151,7 @@ header h1 { font-size: 16px; font-weight: 600; }
         <span class="pane-title">Preview</span>
         <span class="preview-tab active" data-mode="preview" onclick="setPreviewMode('preview')">Rendered</span>
         <span class="preview-tab" data-mode="merged" onclick="setPreviewMode('merged')">Merged JSON</span>
-        <button class="pane-expand" onclick="expandPane('preview')" title="Expand preview">&#x25B6; &#x25C0;</button>
+        <button class="pane-expand" id="btn-expand-preview" onclick="expandPane('preview')"></button>
       </div>
       <div class="preview-content" id="preview-content"></div>
     </div>
@@ -634,31 +634,42 @@ document.addEventListener('keydown', (e) => {
   editorPane.style.flex = '1 1 50%';
   previewPane.style.flex = '1 1 50%';
 
-  splitter.addEventListener('mousedown', (e) => {
-    e.preventDefault();
-    dragging = true;
-    splitter.classList.add('dragging');
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-  });
-
-  document.addEventListener('mousemove', (e) => {
-    if (!dragging) return;
-    const rect = splitpane.getBoundingClientRect();
-    const offset = e.clientX - rect.left;
-    const total = rect.width - 5; // splitter width
-    const pct = Math.max(5, Math.min(95, (offset / rect.width) * 100));
-    editorPane.style.flex = `0 0 ${pct}%`;
-    previewPane.style.flex = `0 0 ${100 - pct}%`;
-  });
-
-  document.addEventListener('mouseup', () => {
+  function stopDrag() {
     if (!dragging) return;
     dragging = false;
     splitter.classList.remove('dragging');
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
+    // Remove the overlay that captures mouse over iframes
+    const overlay = document.getElementById('drag-overlay');
+    if (overlay) overlay.remove();
+  }
+
+  splitter.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    dragging = true;
+    expandedPane = null;
+    splitter.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    // Add a transparent overlay to capture mouse events over iframes
+    const overlay = document.createElement('div');
+    overlay.id = 'drag-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;cursor:col-resize;';
+    document.body.appendChild(overlay);
   });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const rect = splitpane.getBoundingClientRect();
+    const pct = Math.max(5, Math.min(95, ((e.clientX - rect.left) / rect.width) * 100));
+    editorPane.style.flex = `0 0 ${pct}%`;
+    previewPane.style.flex = `0 0 ${100 - pct}%`;
+  });
+
+  document.addEventListener('mouseup', stopDrag);
+  // Also stop on blur in case mouse leaves window
+  window.addEventListener('blur', stopDrag);
 })();
 
 // Expand/collapse panes
@@ -668,7 +679,6 @@ function expandPane(which) {
   const previewPane = document.getElementById('pane-preview');
 
   if (expandedPane === which) {
-    // Restore 50/50
     editorPane.style.flex = '1 1 50%';
     previewPane.style.flex = '1 1 50%';
     expandedPane = null;
@@ -681,7 +691,30 @@ function expandPane(which) {
     previewPane.style.flex = '0 0 95%';
     expandedPane = 'preview';
   }
+  updateExpandButtons();
 }
+
+function updateExpandButtons() {
+  const btnEditor = document.getElementById('btn-expand-editor');
+  const btnPreview = document.getElementById('btn-expand-preview');
+  if (expandedPane === 'editor') {
+    btnEditor.textContent = 'Collapse \u25B6';
+    btnEditor.title = 'Restore split view';
+    btnPreview.textContent = '\u25C0 Expand';
+    btnPreview.title = 'Expand preview';
+  } else if (expandedPane === 'preview') {
+    btnEditor.textContent = 'Expand \u25C0';
+    btnEditor.title = 'Expand editor';
+    btnPreview.textContent = '\u25B6 Collapse';
+    btnPreview.title = 'Restore split view';
+  } else {
+    btnEditor.textContent = 'Expand \u25C0';
+    btnEditor.title = 'Expand editor to full width';
+    btnPreview.textContent = '\u25B6 Expand';
+    btnPreview.title = 'Expand preview to full width';
+  }
+}
+updateExpandButtons();
 
 init();
 </script>
