@@ -149,7 +149,7 @@ header h1 { font-size: 16px; font-weight: 600; }
     <div class="pane-preview" id="pane-preview">
       <div class="pane-header">
         <span class="pane-title">Preview</span>
-        <span class="preview-tab" id="btn-source" onclick="toggleSource()">Source</span>
+        <button class="btn" id="btn-source" onclick="toggleSource()">HTML</button>
         <button class="pane-expand" id="btn-expand-preview" onclick="expandPane('preview')"></button>
       </div>
       <div class="preview-content" id="preview-content"></div>
@@ -568,7 +568,10 @@ async function refreshValidation() {
 
 function toggleSource() {
   state.previewMode = state.previewMode === 'merged' ? 'preview' : 'merged';
-  document.getElementById('btn-source').classList.toggle('active', state.previewMode === 'merged');
+  const btn = document.getElementById('btn-source');
+  const isJson = state.previewMode === 'merged';
+  btn.textContent = isJson ? 'JSON' : 'HTML';
+  btn.classList.toggle('primary', isJson);
   refreshPreview();
 }
 
