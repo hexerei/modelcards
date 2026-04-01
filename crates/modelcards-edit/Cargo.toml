@@ -16,5 +16,4 @@ modelcards = { version = "0.1.4", path = "../.." }
 anyhow = { workspace = true }
 serde_json = { workspace = true }
 clap = { version = "4", features = ["derive"] }
-minijinja = "1"
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }

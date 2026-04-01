@@ -175,6 +175,7 @@ pub fn render_value_to_template(data: Value, template: Option<&Path>) -> Result<
     console::debug(&format!("Template: {}", template_name));
 
     let mut env = Environment::new();
+    env.set_undefined_behavior(minijinja::UndefinedBehavior::Chainable);
     env.add_template(template_name, template_content.as_str())?;
     let template = env.get_template(template_name)?;
     
@@ -187,6 +188,21 @@ pub fn render_value_to_template(data: Value, template: Option<&Path>) -> Result<
     }
 }
 
+
+/// Render a JSON value to HTML using the built-in HTML template.
+///
+/// Uses the embedded Google Model Card HTML template.
+pub fn render_value_to_html(data: Value) -> Result<String> {
+    let template_name = "default_html";
+    let template_content = crate::assets::templates::get_html();
+
+    let mut env = Environment::new();
+    env.set_undefined_behavior(minijinja::UndefinedBehavior::Chainable);
+    env.add_template(template_name, template_content)?;
+    let template = env.get_template(template_name)?;
+
+    template.render(&data).map_err(|e| anyhow::anyhow!("Could not render HTML template: {:?}", e))
+}
 
 #[allow(dead_code)]
 #[doc(hidden)]

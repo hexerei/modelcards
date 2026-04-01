@@ -26,6 +26,7 @@ pub async fn run(jayson: Jayson) -> anyhow::Result<()> {
         .route("/", get(serve_spa))
         .route("/api/schema", get(get_schema))
         .route("/api/layers", get(list_layers))
+        .route("/api/layers", axum::routing::post(add_layer))
         .route("/api/layers/{id}", get(get_layer))
         .route("/api/layers/{id}", put(update_layer))
         .route("/api/merged", get(get_merged))
@@ -141,6 +142,35 @@ async fn update_layer(
     }
 
     Json(json!({"ok": true})).into_response()
+}
+
+async fn add_layer(
+    State(state): State<AppState>,
+    Json(body): Json<Value>,
+) -> impl IntoResponse {
+    let name = body.get("name")
+        .and_then(|v| v.as_str())
+        .unwrap_or("new_layer")
+        .to_string();
+    let file = body.get("file")
+        .and_then(|v| v.as_str())
+        .map(|s| std::path::PathBuf::from(s));
+    let data = body.get("data").cloned().unwrap_or(json!({}));
+
+    let mut jayson = state.write().await;
+    let source = match file {
+        Some(path) => LayerSource::File(path),
+        None => LayerSource::Memory,
+    };
+    let id = jayson.stack.len();
+    jayson.stack.push(crate::layer::Layer {
+        name,
+        data,
+        source,
+        readonly: false,
+    });
+
+    (StatusCode::CREATED, Json(json!({"ok": true, "id": id}))).into_response()
 }
 
 async fn get_merged(State(state): State<AppState>) -> Json<Value> {

@@ -167,7 +167,7 @@ function renderTabs() {
   el.innerHTML = state.layers.map((l, i) =>
     `<div class="tab${i === state.activeLayer ? ' active' : ''}${l.readonly ? ' readonly' : ''}"
           onclick="switchLayer(${i})">${esc(l.name)}</div>`
-  ).join('');
+  ).join('') + `<div class="tab" onclick="addNewLayer()" style="color:var(--primary);font-weight:600;">+</div>`;
 }
 
 function switchLayer(idx) {
@@ -454,6 +454,35 @@ async function saveLayer() {
   refreshValidation();
 }
 
+async function addNewLayer() {
+  const name = prompt('Layer name:');
+  if (!name) return;
+  const file = prompt('File path to save (leave empty for in-memory):', name + '.json');
+  try {
+    const body = { name, data: {} };
+    if (file) body.file = file;
+    const res = await fetch('/api/layers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const result = await res.json();
+    if (res.ok) {
+      state.layers.push({ id: result.id, name, readonly: false });
+      state.layerData[result.id] = {};
+      state.activeLayer = state.layers.length - 1;
+      state.dirty = false;
+      renderTabs();
+      renderForm();
+      refreshPreview();
+    } else {
+      alert('Failed to add layer: ' + (result.error || 'Unknown error'));
+    }
+  } catch (e) {
+    alert('Failed to add layer: ' + e.message);
+  }
+}
+
 let previewTimer;
 function debouncePreview() {
   clearTimeout(previewTimer);
@@ -473,10 +502,18 @@ async function refreshPreview() {
   } else {
     try {
       const res = await fetch('/api/preview');
-      const html = await res.text();
-      el.innerHTML = `<iframe srcdoc="${esc(html)}"></iframe>`;
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: res.statusText }));
+        el.innerHTML = `<pre style="color:#c00;padding:16px;">Preview error: ${esc(err.error || 'Unknown error')}</pre>`;
+      } else {
+        const html = await res.text();
+        el.innerHTML = '';
+        const iframe = document.createElement('iframe');
+        iframe.srcdoc = html;
+        el.appendChild(iframe);
+      }
     } catch (e) {
-      el.innerHTML = `<pre>Error loading preview</pre>`;
+      el.innerHTML = `<pre style="color:#c00;padding:16px;">Error loading preview: ${esc(e.message)}</pre>`;
     }
   }
 }
