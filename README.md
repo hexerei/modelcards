@@ -215,10 +215,34 @@ Options:
 
 
 
+## Configuration
+
+Settings are resolved through a 4-layer hierarchy. Later layers override earlier ones:
+
+```
+embedded defaults → config.toml → MC_* env vars → CLI args
+```
+
+Run `modelcards init` to generate a `config.toml` with all available settings.
+
+### Available Settings
+
+| Setting | Default | config.toml key | Env var | CLI flag |
+|---------|---------|-----------------|---------|----------|
+| Project directory | `"."` | `project_dir` | `MC_PROJECT_DIR` | `-r/--root` |
+| Data source | `"./sample.json"` | `input.data` | `MC_INPUT__DATA` | `-s/--source` (build, check) |
+| Schema path | `"./schema/modelcard.schema.json"` | `input.schema` | `MC_INPUT__SCHEMA` | `-s/--schema` (validate) |
+| Validate input | `true` | `input.validate` | `MC_INPUT__VALIDATE` | — |
+| Output target | `"./cards/modelcard.md"` | `output.target` | `MC_OUTPUT__TARGET` | `-o/--target` (build) |
+| Template path | `"./templates/modelcard.md.jinja"` | `output.template` | `MC_OUTPUT__TEMPLATE` | `-t/--template` (render) |
+| Validate output | `true` | `output.validate` | `MC_OUTPUT__VALIDATE` | — |
+
+Nested keys use `__` (double underscore) as separator in env vars because single underscore is ambiguous (e.g., `MC_INPUT__DATA` maps to `input.data`).
+
 ## Features
 
 - [x] Create modelcard from template
-- [ ] Hierarchical settings (default, config.toml, env, cli args)
+- [x] Hierarchical settings (default, config.toml, env, cli args)
 - [ ] Prettier output with crossterm crate
 - [ ] Data input from terminal via inquire crate
 

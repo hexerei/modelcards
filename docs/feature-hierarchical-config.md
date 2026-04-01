@@ -1,6 +1,6 @@
 # Feature: Unified Hierarchical Configuration
 
-**Status**: Implemented (with minor gaps)
+**Status**: Implemented
 **Date**: 2026-03-26
 **Implemented**: 2026-03-27 (commit `a19cd68`)
 **Relates to**: README task "Hierarchical settings (default, config.toml, env, cli args)"
@@ -102,9 +102,9 @@ embedded defaults → RUN_MODE config (optional) → config.toml → MC_* env va
 
 Per design decision #5, these were deferred. Env vars (`MC_INPUT__VALIDATE=false`) cover the need.
 
-### 5. README not updated
+### 5. ~~README not updated~~ — Fixed
 
-The hierarchical settings task checkbox in README.md is still unchecked. No configuration section documenting the precedence chain or available env vars was added.
+README.md now has a Configuration section documenting the precedence chain, settings table, and env var syntax. Checkbox is checked.
 
 ## Design Decisions
 
