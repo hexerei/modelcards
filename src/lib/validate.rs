@@ -19,7 +19,6 @@ use std::path::Path;
 use crate::{assets, utils::load_json_file};
 use anyhow::{bail, Result};
 use serde_json::Value;
-use valico::json_schema::scope;
 
 /// Check a model card against a schema.
 /// 
@@ -118,33 +117,23 @@ pub fn validate_against_schema(modelcard: Value, schema: Option<Value>) -> Resul
         None => serde_json::from_str(assets::schema::get_schema())?,
     };
 
-    let mut scope = scope::Scope::new();
-    //let schema = scope.compile_and_return(schema_v7, true).ok().unwrap();
-    match scope.compile_and_return(schema_v7, true) {
-        Ok(s) => {
-            let vs = s.validate(&modelcard);
-            if !vs.is_valid() {
-                let mut errors = vec![];
-                for e in vs.errors.into_iter() {
-                    errors.push(format!("[{}] {}: {}", e.get_code(), e.get_path(), e.get_title()));
-                    if let Some(detail) = e.get_detail() {
-                        errors.push(format!("    {}", detail));
-                    }
-                    //TODO: add state errors from any_of and one_of
-                }
-                let mut missing = vec![];
-                for e in vs.missing.into_iter() {
-                    missing.push(format!("{}", e));
-                }
-                if !missing.is_empty() {
-                    errors.push(format!("Missing fields:\n - {}", missing.join("\n - ")));
-                }
-                bail!("Validation failed:\n{}", errors.join("\n"));
+    let validator = jsonschema::validator_for(&schema_v7)
+        .map_err(|e| anyhow::anyhow!("Could not compile schema: {}", e))?;
+
+    let errors: Vec<String> = validator
+        .iter_errors(&modelcard)
+        .map(|e| {
+            let path = e.instance_path();
+            if path.as_str().is_empty() {
+                format!("{}", e)
+            } else {
+                format!("{}: {}", path, e)
             }
-        },
-        Err(e) => {
-            bail!("Could not compile schema: {:?}", e);
-        }
+        })
+        .collect();
+
+    if !errors.is_empty() {
+        bail!("Validation failed:\n{}", errors.join("\n"));
     }
 
     Ok(true)

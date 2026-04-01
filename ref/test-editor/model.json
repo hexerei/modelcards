@@ -1,0 +1,70 @@
+{
+  "model_details": {
+    "name": "Census Income Classifier",
+    "overview": "Wide and deep Keras model classifying whether an individual has income over $50,000 based on demographic features.",
+    "documentation": "This is a wide and deep Keras model which aims to classify whether or not an individual has an income of over $50,000 based on various demographic features. The model is trained on the UCI Census Income Dataset. This is not a production model, and this dataset has traditionally only been used for research purposes. In this Model Card, you can review quantitative components of the model's performance and data, as well as information about the model's intended uses, limitations, and ethical considerations.",
+    "owners": [
+      {
+        "name": "Daniel Vorhauer",
+        "contact": "daniel.vorhauer@company.com"
+      },
+      {
+        "name": "Data Science Team",
+        "contact": "datascience@company.com"
+      }
+    ],
+    "version": {
+      "name": "1.0",
+      "date": "2024-01-15",
+      "diff": "Initial release"
+    },
+    "citations": [
+      {
+        "style": "BibTeX",
+        "citation": "@article{Cabrera2023ZenoAI,\n  title={Zeno: An Interactive Framework for Behavioral Evaluation of Machine Learning},\n  author={Angel Alexander Cabrera and Erica Fu and Donald Bertucci and Kenneth Holstein and Ameet Talwalkar and Jason I. Hong and Adam Perer},\n  journal={Proceedings of the 2023 CHI Conference on Human Factors in Computing Systems},\n  year={2023},\n  url={https://api.semanticscholar.org/CorpusID:256697444}\n}"
+      }
+    ],
+    "references": [
+      {
+        "reference": "https://github.com/huggingface/huggingface_hub/tree/main"
+      },
+      {
+        "reference": "https://www.semanticscholar.org/paper/The-What-If-Tool%3A-Interactive-Probing-of-Machine-Wexler-Pushkarna/1f6b9766374d14d81c225c2ced5bb02fe0bccd43"
+      }
+    ]
+  },
+  "model_parameters": {
+    "model_architecture": "Wide and Deep Keras Model",
+    "data": [
+      {
+        "name": "UCI Census Income Dataset (Training)",
+        "link": "https://archive.ics.uci.edu/ml/datasets/Census+Income",
+        "description": "Training split of the UCI Census Income Dataset. Contains demographic information about individuals with a binary label for income over $50,000."
+      },
+      {
+        "name": "UCI Census Income Dataset (Test)",
+        "link": "https://archive.ics.uci.edu/ml/datasets/Census+Income",
+        "description": "Test split used for evaluation. Same source as training data with held-out samples."
+      }
+    ]
+  },
+  "quantitative_analysis": {
+    "performance_metrics": [
+      {
+        "type": "binary_accuracy",
+        "value": "0.95",
+        "slice": "Race | Other"
+      },
+      {
+        "type": "binary_accuracy",
+        "value": "0.89",
+        "slice": "Race | Black"
+      },
+      {
+        "type": "binary_accuracy",
+        "value": "0.80",
+        "slice": "Race | White"
+      }
+    ]
+  }
+}

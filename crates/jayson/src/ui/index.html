@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jayson Editor</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #f8f9fa; --surface: #fff; --border: #dee2e6; --text: #212529;
+  --text-muted: #6c757d; --primary: #0d6efd; --primary-hover: #0b5ed7;
+  --danger: #dc3545; --success: #198754; --warning-bg: #fff3cd;
+  --error-bg: #f8d7da; --tab-active: #fff; --tab-inactive: #e9ecef;
+  --radius: 6px; --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --mono: "SF Mono", Monaco, "Cascadia Code", monospace;
+}
+body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; }
+#app { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr; height: 100vh; }
+header {
+  grid-column: 1 / -1; display: flex; align-items: center; gap: 12px;
+  padding: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--border);
+}
+header h1 { font-size: 16px; font-weight: 600; }
+.status { margin-left: auto; font-size: 12px; padding: 4px 8px; border-radius: var(--radius); }
+.status.valid { background: #d1e7dd; color: var(--success); }
+.status.invalid { background: var(--error-bg); color: var(--danger); }
+
+/* Tabs */
+.tabs {
+  display: flex; gap: 2px; padding: 8px 16px 0; background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.tab {
+  padding: 6px 16px; cursor: pointer; border: 1px solid var(--border);
+  border-bottom: none; border-radius: var(--radius) var(--radius) 0 0;
+  background: var(--tab-inactive); font-size: 13px; font-family: var(--font);
+}
+.tab.active { background: var(--tab-active); font-weight: 600; }
+.tab.readonly::after { content: " (readonly)"; color: var(--text-muted); font-weight: 400; font-size: 11px; }
+
+/* Editor panel */
+.editor-panel { overflow-y: auto; padding: 16px; }
+.form-section { margin-bottom: 12px; border: 1px solid var(--border); border-radius: var(--radius); }
+.section-header {
+  display: flex; align-items: center; padding: 8px 12px; background: var(--tab-inactive);
+  cursor: pointer; font-weight: 600; font-size: 13px; border-radius: var(--radius) var(--radius) 0 0;
+  user-select: none;
+}
+.section-header .toggle { margin-right: 8px; font-size: 10px; }
+.section-body { padding: 12px; }
+.section-body.collapsed { display: none; }
+
+.field { margin-bottom: 10px; }
+.field label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--text); }
+.field input, .field select, .field textarea {
+  width: 100%; padding: 6px 8px; border: 1px solid var(--border); border-radius: var(--radius);
+  font-family: var(--font); font-size: 13px; background: var(--surface);
+}
+.field textarea { min-height: 80px; resize: vertical; font-family: var(--mono); font-size: 12px; }
+.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(13,110,253,0.15); }
+.field .error { color: var(--danger); font-size: 11px; margin-top: 2px; }
+.field.has-error input, .field.has-error select, .field.has-error textarea { border-color: var(--danger); }
+
+/* Array controls */
+.array-controls { display: flex; gap: 4px; margin-bottom: 8px; }
+.array-item { border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-bottom: 6px; position: relative; }
+.array-item-controls {
+  position: absolute; top: 4px; right: 4px; display: flex; gap: 2px;
+}
+.btn {
+  padding: 4px 10px; border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); cursor: pointer; font-size: 12px; font-family: var(--font);
+}
+.btn:hover { background: var(--tab-inactive); }
+.btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+.btn.primary:hover { background: var(--primary-hover); }
+.btn.danger { color: var(--danger); }
+.btn.small { padding: 2px 6px; font-size: 11px; }
+
+/* Preview panel */
+.preview-panel {
+  border-left: 1px solid var(--border); display: flex; flex-direction: column;
+}
+.preview-header {
+  padding: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--border);
+  font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 8px;
+}
+.preview-header .preview-tab { cursor: pointer; padding: 4px 8px; border-radius: var(--radius); }
+.preview-header .preview-tab.active { background: var(--primary); color: #fff; }
+.preview-content { flex: 1; overflow: auto; }
+.preview-content iframe { width: 100%; height: 100%; border: none; }
+.preview-content pre { padding: 16px; font-family: var(--mono); font-size: 12px; white-space: pre-wrap; word-break: break-all; line-height: 1.5; }
+.json-key { color: #881391; }
+.json-string { color: #0b7285; }
+.json-number { color: #c92a2a; }
+.json-bool { color: #5c940d; }
+.json-null { color: #868e96; }
+
+/* Save bar */
+.save-bar {
+  padding: 8px 16px; background: var(--surface); border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.save-bar .msg { font-size: 12px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1 id="editor-title">Jayson Editor</h1>
+    <span id="validation-status" class="status"></span>
+  </header>
+  <div style="display:flex;flex-direction:column;">
+    <div id="layer-tabs" class="tabs"></div>
+    <div class="editor-panel" id="editor"></div>
+    <div class="save-bar">
+      <button class="btn primary" id="save-btn" onclick="saveLayer()">Save</button>
+      <span class="msg" id="save-msg"></span>
+    </div>
+  </div>
+  <div class="preview-panel">
+    <div class="preview-header">
+      <span>Preview</span>
+      <span class="preview-tab active" data-mode="preview" onclick="setPreviewMode('preview')">Rendered</span>
+      <span class="preview-tab" data-mode="merged" onclick="setPreviewMode('merged')">Merged JSON</span>
+    </div>
+    <div class="preview-content" id="preview-content"></div>
+  </div>
+</div>
+
+<script>
+let state = {
+  layers: [],
+  activeLayer: 0,
+  schema: null,
+  layerData: {},
+  dirty: false,
+  previewMode: 'preview',
+  validationErrors: [],
+};
+
+async function init() {
+  try {
+    const [schemaRes, layersRes] = await Promise.all([
+      fetch('/api/schema'), fetch('/api/layers')
+    ]);
+    state.schema = await schemaRes.json();
+    state.layers = await layersRes.json();
+
+    // Load all layer data
+    await Promise.all(state.layers.map(async (l) => {
+      const res = await fetch(`/api/layers/${l.id}`);
+      state.layerData[l.id] = await res.json();
+    }));
+
+    renderTabs();
+    renderForm();
+    refreshPreview();
+    refreshValidation();
+  } catch (e) {
+    document.getElementById('editor').innerHTML = `<p style="color:red">Failed to load: ${e.message}</p>`;
+  }
+}
+
+function renderTabs() {
+  const el = document.getElementById('layer-tabs');
+  el.innerHTML = state.layers.map((l, i) =>
+    `<div class="tab${i === state.activeLayer ? ' active' : ''}${l.readonly ? ' readonly' : ''}"
+          onclick="switchLayer(${i})">${esc(l.name)}</div>`
+  ).join('');
+}
+
+function switchLayer(idx) {
+  if (state.dirty && !confirm('Unsaved changes. Switch anyway?')) return;
+  state.activeLayer = idx;
+  state.dirty = false;
+  renderTabs();
+  renderForm();
+  document.getElementById('save-msg').textContent = '';
+}
+
+function renderForm() {
+  const layer = state.layers[state.activeLayer];
+  const data = state.layerData[layer.id] || {};
+  const schema = state.schema || {};
+  const el = document.getElementById('editor');
+  const readonly = layer.readonly;
+
+  el.innerHTML = renderObjectFields(schema, data, '', readonly);
+  document.getElementById('save-btn').disabled = readonly;
+}
+
+function renderObjectFields(schema, data, path, readonly) {
+  const props = schema.properties || {};
+  const required = schema.required || [];
+  let html = '';
+
+  for (const [key, propSchema] of Object.entries(props)) {
+    const fullPath = path ? `${path}.${key}` : key;
+    const value = data != null ? data[key] : undefined;
+    const isRequired = required.includes(key);
+    html += renderField(key, propSchema, value, fullPath, readonly, isRequired);
+  }
+
+  // Render any data keys not in schema
+  if (data && typeof data === 'object' && !Array.isArray(data)) {
+    for (const key of Object.keys(data)) {
+      if (!props[key]) {
+        const fullPath = path ? `${path}.${key}` : key;
+        html += renderField(key, {}, data[key], fullPath, readonly, false);
+      }
+    }
+  }
+
+  return html;
+}
+
+function renderField(key, schema, value, path, readonly, isRequired) {
+  const type = schema.type || inferType(value);
+  const errorPath = `/${path.replace(/\./g, '/')}`;
+  const errors = state.validationErrors.filter(e => e.startsWith(errorPath + ':') || e.startsWith(errorPath + ' '));
+  const hasError = errors.length > 0;
+  const label = key + (isRequired ? ' *' : '');
+
+  if (type === 'object') {
+    return renderSection(key, label, schema, value || {}, path, readonly);
+  }
+
+  if (type === 'array') {
+    return renderArrayField(key, label, schema, value || [], path, readonly, hasError, errors);
+  }
+
+  let input;
+  const dis = readonly ? ' disabled' : '';
+  const escapedValue = value != null ? esc(String(value)) : '';
+
+  if (schema.enum) {
+    const opts = schema.enum.map(v =>
+      `<option value="${esc(String(v))}"${v === value ? ' selected' : ''}>${esc(String(v))}</option>`
+    ).join('');
+    input = `<select data-path="${esc(path)}" onchange="onFieldChange(this)"${dis}>${opts}</select>`;
+  } else if (type === 'boolean') {
+    input = `<input type="checkbox" data-path="${esc(path)}" ${value ? 'checked' : ''} onchange="onFieldChange(this)"${dis} style="width:auto;">`;
+  } else if (type === 'integer' || type === 'number') {
+    const step = type === 'integer' ? '1' : 'any';
+    input = `<input type="number" step="${step}" data-path="${esc(path)}" value="${escapedValue}" oninput="onFieldChange(this)"${dis}>`;
+  } else if (schema.format === 'date') {
+    input = `<input type="date" data-path="${esc(path)}" value="${escapedValue}" oninput="onFieldChange(this)"${dis}>`;
+  } else if (schema.format === 'uri') {
+    input = `<input type="url" data-path="${esc(path)}" value="${escapedValue}" oninput="onFieldChange(this)"${dis}>`;
+  } else if (isLongText(key, schema, value)) {
+    input = `<textarea data-path="${esc(path)}" oninput="onFieldChange(this)"${dis}>${esc(String(value || ''))}</textarea>`;
+  } else {
+    input = `<input type="text" data-path="${esc(path)}" value="${escapedValue}" oninput="onFieldChange(this)"${dis}>`;
+  }
+
+  return `<div class="field${hasError ? ' has-error' : ''}">
+    <label>${esc(label)}</label>
+    ${input}
+    ${errors.map(e => `<div class="error">${esc(e)}</div>`).join('')}
+  </div>`;
+}
+
+function renderSection(key, label, schema, data, path, readonly) {
+  const id = 'section-' + path.replace(/\./g, '-');
+  return `<div class="form-section">
+    <div class="section-header" onclick="toggleSection('${id}')">
+      <span class="toggle" id="${id}-toggle">&#9660;</span> ${esc(label)}
+    </div>
+    <div class="section-body" id="${id}">
+      ${renderObjectFields(schema, data, path, readonly)}
+    </div>
+  </div>`;
+}
+
+function renderArrayField(key, label, schema, items, path, readonly, hasError, errors) {
+  const itemSchema = schema.items || {};
+  let html = `<div class="field${hasError ? ' has-error' : ''}"><label>${esc(label)}</label>`;
+
+  if (!readonly) {
+    html += `<div class="array-controls"><button class="btn small" onclick="addArrayItem('${esc(path)}')">+ Add</button></div>`;
+  }
+
+  items.forEach((item, i) => {
+    const itemPath = `${path}.${i}`;
+    html += `<div class="array-item">`;
+    if (!readonly) {
+      html += `<div class="array-item-controls">`;
+      if (i > 0) html += `<button class="btn small" onclick="moveArrayItem('${esc(path)}',${i},-1)" title="Move up">&uarr;</button>`;
+      if (i < items.length - 1) html += `<button class="btn small" onclick="moveArrayItem('${esc(path)}',${i},1)" title="Move down">&darr;</button>`;
+      html += `<button class="btn small danger" onclick="removeArrayItem('${esc(path)}',${i})" title="Remove">&times;</button>`;
+      html += `</div>`;
+    }
+    if (itemSchema.type === 'object' || (typeof item === 'object' && item !== null && !Array.isArray(item))) {
+      html += renderObjectFields(itemSchema, item, itemPath, readonly);
+    } else {
+      html += renderField(String(i), itemSchema, item, itemPath, readonly, false);
+    }
+    html += `</div>`;
+  });
+
+  errors.forEach(e => { html += `<div class="error">${esc(e)}</div>`; });
+  html += `</div>`;
+  return html;
+}
+
+function toggleSection(id) {
+  const body = document.getElementById(id);
+  const toggle = document.getElementById(id + '-toggle');
+  if (body.classList.contains('collapsed')) {
+    body.classList.remove('collapsed');
+    toggle.innerHTML = '&#9660;';
+  } else {
+    body.classList.add('collapsed');
+    toggle.innerHTML = '&#9654;';
+  }
+}
+
+function onFieldChange(el) {
+  const path = el.dataset.path;
+  const layer = state.layers[state.activeLayer];
+  const data = state.layerData[layer.id];
+
+  let value;
+  if (el.type === 'checkbox') {
+    value = el.checked;
+  } else if (el.type === 'number') {
+    value = el.step === '1' ? parseInt(el.value) || 0 : parseFloat(el.value) || 0;
+  } else {
+    value = el.value;
+  }
+
+  setNestedValue(data, path, value);
+  state.dirty = true;
+  document.getElementById('save-msg').textContent = 'Unsaved changes';
+  debouncePreview();
+}
+
+function getNestedValue(obj, path) {
+  return path.split('.').reduce((o, k) => o && o[isNaN(k) ? k : parseInt(k)], obj);
+}
+
+function setNestedValue(obj, path, value) {
+  const parts = path.split('.');
+  let target = obj;
+  for (let i = 0; i < parts.length - 1; i++) {
+    const key = isNaN(parts[i]) ? parts[i] : parseInt(parts[i]);
+    if (!target[key]) target[key] = isNaN(parts[i + 1]) ? {} : [];
+    target = target[key];
+  }
+  const last = isNaN(parts[parts.length - 1]) ? parts[parts.length - 1] : parseInt(parts[parts.length - 1]);
+  target[last] = value;
+}
+
+function addArrayItem(path) {
+  const layer = state.layers[state.activeLayer];
+  const data = state.layerData[layer.id];
+  const arr = getNestedValue(data, path) || [];
+  const schema = getSchemaForPath(path);
+  const itemSchema = schema && schema.items;
+  let newItem;
+
+  if (itemSchema && itemSchema.type === 'object') {
+    newItem = {};
+    for (const [k, v] of Object.entries(itemSchema.properties || {})) {
+      newItem[k] = defaultForType(v.type);
+    }
+  } else {
+    newItem = defaultForType(itemSchema && itemSchema.type);
+  }
+
+  arr.push(newItem);
+  setNestedValue(data, path, arr);
+  state.dirty = true;
+  renderForm();
+  debouncePreview();
+}
+
+function removeArrayItem(path, index) {
+  const layer = state.layers[state.activeLayer];
+  const data = state.layerData[layer.id];
+  const arr = getNestedValue(data, path);
+  if (arr) {
+    arr.splice(index, 1);
+    state.dirty = true;
+    renderForm();
+    debouncePreview();
+  }
+}
+
+function moveArrayItem(path, index, direction) {
+  const layer = state.layers[state.activeLayer];
+  const data = state.layerData[layer.id];
+  const arr = getNestedValue(data, path);
+  if (!arr) return;
+  const newIndex = index + direction;
+  if (newIndex < 0 || newIndex >= arr.length) return;
+  [arr[index], arr[newIndex]] = [arr[newIndex], arr[index]];
+  state.dirty = true;
+  renderForm();
+  debouncePreview();
+}
+
+function getSchemaForPath(path) {
+  let schema = state.schema;
+  for (const part of path.split('.')) {
+    if (!schema) return null;
+    if (schema.properties && schema.properties[part]) {
+      schema = schema.properties[part];
+    } else if (schema.items && !isNaN(part)) {
+      schema = schema.items;
+    } else {
+      return null;
+    }
+  }
+  return schema;
+}
+
+function defaultForType(schemaType) {
+  switch (schemaType) {
+    case 'string': return '';
+    case 'number': case 'integer': return 0;
+    case 'boolean': return false;
+    case 'array': return [];
+    case 'object': return {};
+    default: return '';
+  }
+}
+
+async function saveLayer() {
+  const layer = state.layers[state.activeLayer];
+  if (layer.readonly) return;
+
+  const data = state.layerData[layer.id];
+  try {
+    const res = await fetch(`/api/layers/${layer.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (res.ok) {
+      state.dirty = false;
+      document.getElementById('save-msg').textContent = 'Saved';
+      setTimeout(() => {
+        if (!state.dirty) document.getElementById('save-msg').textContent = '';
+      }, 2000);
+    } else {
+      const err = await res.json();
+      document.getElementById('save-msg').textContent = `Error: ${err.error || 'Save failed'}`;
+    }
+  } catch (e) {
+    document.getElementById('save-msg').textContent = `Error: ${e.message}`;
+  }
+  refreshValidation();
+}
+
+let previewTimer;
+function debouncePreview() {
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(() => { refreshPreview(); refreshValidation(); }, 300);
+}
+
+async function refreshPreview() {
+  const el = document.getElementById('preview-content');
+  if (state.previewMode === 'merged') {
+    try {
+      const res = await fetch('/api/merged');
+      const data = await res.json();
+      el.innerHTML = `<pre>${highlightJson(data)}</pre>`;
+    } catch (e) {
+      el.innerHTML = `<pre>Error loading merged data</pre>`;
+    }
+  } else {
+    try {
+      const res = await fetch('/api/preview');
+      const html = await res.text();
+      el.innerHTML = `<iframe srcdoc="${esc(html)}"></iframe>`;
+    } catch (e) {
+      el.innerHTML = `<pre>Error loading preview</pre>`;
+    }
+  }
+}
+
+async function refreshValidation() {
+  try {
+    const res = await fetch('/api/validate');
+    const data = await res.json();
+    const el = document.getElementById('validation-status');
+    if (data.valid) {
+      el.className = 'status valid';
+      el.textContent = 'Valid';
+      state.validationErrors = [];
+    } else {
+      el.className = 'status invalid';
+      el.textContent = `${data.errors.length} error${data.errors.length !== 1 ? 's' : ''}`;
+      state.validationErrors = data.errors;
+    }
+  } catch (e) {
+    // ignore
+  }
+}
+
+function setPreviewMode(mode) {
+  state.previewMode = mode;
+  document.querySelectorAll('.preview-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.mode === mode);
+  });
+  refreshPreview();
+}
+
+function inferType(value) {
+  if (value === null || value === undefined) return 'string';
+  if (Array.isArray(value)) return 'array';
+  return typeof value === 'object' ? 'object' : typeof value;
+}
+
+function isLongText(key, schema, value) {
+  if (schema.format === 'textarea') return true;
+  const longKeys = ['description', 'citation', 'overview', 'details', 'content', 'body', 'text', 'notes', 'summary'];
+  if (longKeys.some(k => key.toLowerCase().includes(k))) return true;
+  if (typeof value === 'string' && value.length > 100) return true;
+  return false;
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function highlightJson(obj) {
+  const raw = JSON.stringify(obj, null, 2);
+  return raw.replace(
+    /("(?:\\.|[^"\\])*")\s*(:)?|(\b(?:true|false)\b)|(null)|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g,
+    (match, str, colon, bool, nul, num) => {
+      if (str) {
+        const escaped = esc(str);
+        return colon
+          ? `<span class="json-key">${escaped}</span>:`
+          : `<span class="json-string">${escaped}</span>`;
+      }
+      if (bool) return `<span class="json-bool">${match}</span>`;
+      if (nul) return `<span class="json-null">${match}</span>`;
+      if (num) return `<span class="json-number">${match}</span>`;
+      return match;
+    }
+  );
+}
+
+// Keyboard shortcut: Ctrl/Cmd+S to save
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    saveLayer();
+  }
+});
+
+init();
+</script>
+</body>
+</html>

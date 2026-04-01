@@ -1,0 +1,53 @@
+{
+  "model_details": {
+    "overview": "Classification model for income prediction based on demographic features.",
+    "documentation": "This dataset that this model was trained on was originally created to support the machine learning community in conducting empirical analysis of ML algorithms. The Adult Data Set can be used in fairness-related studies that compare inequalities across sex and race, based on people's annual incomes."
+  },
+  "model_parameters": {
+    "model_architecture": "Inference Endpoint",
+    "data": [
+      {
+        "name": "UCI Census Income Dataset",
+        "link": "https://archive.ics.uci.edu/ml/datasets/Census+Income",
+        "description": "The UCI Census Income Dataset is a widely used dataset for research purposes. It contains demographic information about individuals, as well as a binary label indicating whether or not the individual has an income of over $50,000."
+      }
+    ]
+  },
+  "considerations": {
+    "users": [
+      {
+        "description": "ML researchers studying fairness and bias in classification models."
+      },
+      {
+        "description": "Data scientists investigating demographic-based income prediction."
+      }
+    ],
+    "use_cases": [
+      {
+        "description": "Empirical analysis of ML algorithms on demographic data."
+      },
+      {
+        "description": "Fairness-related studies comparing inequalities across sex and race based on annual incomes."
+      },
+      {
+        "description": "Base ethical classification models on results."
+      }
+    ],
+    "limitations": [
+      {
+        "description": "The model is not intended to be used in production settings."
+      },
+      {
+        "description": "Population of Race and Sex is imbalanced in the training data."
+      },
+      {
+        "description": "Predictions may include disturbing and harmful stereotypes across protected classes, identity characteristics, and sensitive social and occupational groups."
+      }
+    ],
+    "tradeoffs": [
+      {
+        "description": "Some interventions may need to be performed to address the class imbalances in the dataset, potentially affecting overall accuracy."
+      }
+    ]
+  }
+}

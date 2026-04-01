@@ -1,0 +1,20 @@
+[package]
+name = "modelcards-edit"
+version = "0.1.0"
+authors = ["Daniel Vorhauer <daniel@hexerei.net>"]
+edition = "2021"
+license = "Apache-2.0"
+description = "Visual model card editor — browser-based UI for editing layered model cards"
+repository = "https://github.com/hexerei/modelcards"
+keywords = ["modelcard", "editor", "model", "ml", "governance"]
+categories = ["command-line-utilities"]
+include = ["src/**/*"]
+
+[dependencies]
+jayson = { version = "0.1.0", path = "../jayson" }
+modelcards = { version = "0.1.4", path = "../.." }
+anyhow = { workspace = true }
+serde_json = { workspace = true }
+clap = { version = "4", features = ["derive"] }
+minijinja = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }

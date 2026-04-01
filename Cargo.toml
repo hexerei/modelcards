@@ -1,3 +1,15 @@
+[workspace]
+members = [".", "crates/jayson", "crates/modelcards-edit"]
+resolver = "2"
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+json-patch = "4"
+jsonschema = "0.45"
+anyhow = "1"
+log = "0.4"
+
 [package]
 name = "modelcards"
 version = "0.1.4"
@@ -13,8 +25,6 @@ categories = ["command-line-utilities"]
 
 include = ["src/**/*", "LICENSE", "README.md"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [lib]
 name = "modelcards"
 path = "src/lib/lib.rs"
@@ -24,17 +34,17 @@ name = "modelcards"
 path = "src/main.rs"
 
 [dependencies]
-anyhow = "1.0.80"
+anyhow = { workspace = true }
 clap = { version = "4.5.1", features = ["derive"] }
 clap-verbosity-flag = "2.2.0"
 clap_complete = "4.5.1"
 config = "0.14.0"
 env_logger = "0.11.3"
-log = "0.4.21"
+log = { workspace = true }
 minijinja = { version = "1.0.12", features = ["loader"] }
-serde = { version = "1.0.197", features = ["derive"] }
-serde_json = "1.0.114"
-valico = "4.0.0"
+serde = { workspace = true }
+serde_json = { workspace = true }
+jsonschema = { workspace = true }
 
 [dev-dependencies]
 same-file = "1"

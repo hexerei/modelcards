@@ -1,0 +1,22 @@
+[package]
+name = "jayson"
+version = "0.1.0"
+authors = ["Daniel Vorhauer <daniel@hexerei.net>"]
+edition = "2021"
+license = "Apache-2.0"
+description = "A schema-driven JSON editor with layered composition and live preview"
+repository = "https://github.com/hexerei/modelcards"
+keywords = ["json", "schema", "editor", "layer", "merge"]
+categories = ["command-line-utilities", "web-programming"]
+include = ["src/**/*"]
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+json-patch = { workspace = true }
+jsonschema = { workspace = true }
+anyhow = { workspace = true }
+log = { workspace = true }
+axum = "0.8"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "fs"] }
+open = "5"

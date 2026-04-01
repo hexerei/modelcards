@@ -1,0 +1,29 @@
+{
+  "schema_version": "0.0.1",
+  "model_details": {
+    "owners": [
+      {
+        "name": "Daniel Vorhauer",
+        "contact": "daniel.vorhauer@company.com"
+      }
+    ],
+    "licenses": [
+      {
+        "identifier": "apache-2.0"
+      }
+    ],
+    "references": [
+      {
+        "reference": "https://github.com/huggingface/huggingface_hub/tree/main"
+      }
+    ]
+  },
+  "considerations": {
+    "ethical_considerations": [
+      {
+        "name": "Bias in training data",
+        "mitigation_strategy": "Evaluate model performance across protected classes and apply fairness interventions as needed."
+      }
+    ]
+  }
+}
